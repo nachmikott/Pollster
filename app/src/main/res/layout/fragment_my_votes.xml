@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.umd.cs.pollster.MyVotesFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:text="@string/vote_stats_label_a"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="36dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="73dp"
+        android:id="@+id/votes_stats_label_a" />
+
+    <TextView
+        android:text="@string/vote_stats_label_b"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/votes_stats_label_a"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="80dp"
+        android:layout_marginEnd="80dp"
+        android:id="@+id/votes_stats_label_b" />
+
+    <TextView
+        android:text="@string/vote_stats_label_c"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/votes_stats_label_a"
+        android:layout_alignLeft="@+id/votes_stats_label_a"
+        android:layout_alignStart="@+id/votes_stats_label_a"
+        android:layout_marginTop="137dp"
+        android:id="@+id/votes_stats_label_c" />
+
+    <TextView
+        android:text="@string/vote_stats_label_d"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/votes_stats_label_c"
+        android:layout_alignRight="@+id/votes_stats_label_b"
+        android:layout_alignEnd="@+id/votes_stats_label_b"
+        android:id="@+id/votes_stats_label_d" />
+
+    <TextView
+        android:text="@string/vote_stats_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/votes_stats_label_d"
+        android:layout_toStartOf="@+id/votes_stats_label_d"
+        android:layout_marginRight="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginTop="22dp"
+        android:id="@+id/vote_stats_label" />
+
+</RelativeLayout>

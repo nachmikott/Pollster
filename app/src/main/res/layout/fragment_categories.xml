@@ -1,0 +1,121 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.umd.cs.pollster.CategoriesFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <TextView
+        android:text="@string/categories_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="18dp"
+        android:id="@+id/categories" />
+
+    <TextView
+        android:text="@string/all_categories_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/categories"
+        android:layout_alignLeft="@+id/toggleButton"
+        android:layout_alignStart="@+id/toggleButton"
+        android:layout_marginTop="13dp"
+        android:id="@+id/all_categories_label" />
+
+    <ToggleButton
+        android:text="@string/all_categories_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
+        android:id="@+id/toggleButton"
+        android:layout_below="@+id/all_categories_label"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:text="@string/academics_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toggleButton"
+        android:layout_alignLeft="@+id/toggleButton"
+        android:layout_alignStart="@+id/toggleButton"
+        android:layout_marginTop="13dp"
+        android:id="@+id/academics_check" />
+
+    <CheckBox
+        android:text="@string/books_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/academics_check"
+        android:layout_alignLeft="@+id/academics_check"
+        android:layout_alignStart="@+id/academics_check"
+        android:id="@+id/books_check" />
+
+    <CheckBox
+        android:text="@string/electronics_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/books_check"
+        android:layout_alignLeft="@+id/books_check"
+        android:layout_alignStart="@+id/books_check"
+        android:id="@+id/electronics_check" />
+
+    <CheckBox
+        android:text="@string/food_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/electronics_check"
+        android:layout_alignLeft="@+id/electronics_check"
+        android:layout_alignStart="@+id/electronics_check"
+        android:id="@+id/food_check" />
+
+    <CheckBox
+        android:text="@string/miscellaneous_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/food_check"
+        android:layout_alignLeft="@+id/food_check"
+        android:layout_alignStart="@+id/food_check"
+        android:id="@+id/misc_check" />
+
+    <CheckBox
+        android:text="@string/movies_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/misc_check"
+        android:layout_alignLeft="@+id/misc_check"
+        android:layout_alignStart="@+id/misc_check"
+        android:id="@+id/movies_check" />
+
+    <CheckBox
+        android:text="@string/nature_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movies_check"
+        android:layout_alignLeft="@+id/movies_check"
+        android:layout_alignStart="@+id/movies_check"
+        android:id="@+id/nature_check" />
+
+    <CheckBox
+        android:text="@string/shopping_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/nature_check"
+        android:layout_alignLeft="@+id/nature_check"
+        android:layout_alignStart="@+id/nature_check"
+        android:id="@+id/shopping_check" />
+
+    <CheckBox
+        android:text="@string/sports_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/shopping_check"
+        android:layout_alignLeft="@+id/shopping_check"
+        android:layout_alignStart="@+id/shopping_check"
+        android:id="@+id/sports_check" />
+
+</RelativeLayout>

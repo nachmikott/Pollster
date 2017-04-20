@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item android:id="@+id/categories"
+        android:title="@string/categories"
+        android:icon="@mipmap/ic_subject_black_24dp"/>
+    <item android:id="@+id/my_posts"
+        android:title="@string/my_posts"
+        android:icon="@mipmap/ic_timeline_black_24dp"/>
+    <item android:id="@+id/my_votes"
+        android:title="@string/my_votes"
+        android:icon="@mipmap/ic_thumbs_up_down_black_24dp"/>
+    <item android:id="@+id/find_friends"
+        android:title="@string/find_friends"
+        android:icon="@mipmap/ic_person_add_black_24dp"/>
+    <item android:id="@+id/settings"
+        android:title="@string/settings"
+        android:icon="@mipmap/ic_settings_black_24dp"/>
+    <item android:id="@+id/log_out"
+        android:title="@string/log_out"
+        android:icon="@mipmap/logout"/>
+
+</menu>
