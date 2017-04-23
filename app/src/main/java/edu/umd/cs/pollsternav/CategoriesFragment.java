@@ -29,6 +29,8 @@ public class CategoriesFragment extends Fragment {
     private CheckBox shopping_checkbox;
     private CheckBox sports_checkbox;
 
+    private CheckBox all_categories_checkbox;
+
 
     public static CategoriesFragment newInstance() {
         CategoriesFragment fragment = new CategoriesFragment();
@@ -57,35 +59,65 @@ public class CategoriesFragment extends Fragment {
         nature_checkbox = (CheckBox) view.findViewById(R.id.nature_check);
         shopping_checkbox = (CheckBox) view.findViewById(R.id.shopping_check);
         sports_checkbox = (CheckBox) view.findViewById(R.id.sports_check);
+        all_categories_checkbox = (CheckBox) view.findViewById(R.id.all_categories);
 
 
+//        all_categories_toggle = (ToggleButton) view.findViewById(R.id.toggleButton);
+//        all_categories_toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-        all_categories_toggle = (ToggleButton) view.findViewById(R.id.toggleButton);
-        all_categories_toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    academics_checkbox.setChecked(true);
-                    books_checkbox.setChecked(true);
-                    electronics_checkbox.setChecked(true);
-                    food_checkbox.setChecked(true);
-                    misc_checkbox.setChecked(true);
-                    movies_checkbox.setChecked(true);
-                    nature_checkbox.setChecked(true);
-                    shopping_checkbox.setChecked(true);
-                    sports_checkbox.setChecked(true);
-                } else {
-                    academics_checkbox.setChecked(false);
-                    books_checkbox.setChecked(false);
-                    electronics_checkbox.setChecked(false);
-                    food_checkbox.setChecked(false);
-                    misc_checkbox.setChecked(false);
-                    movies_checkbox.setChecked(false);
-                    nature_checkbox.setChecked(false);
-                    shopping_checkbox.setChecked(false);
-                    sports_checkbox.setChecked(false);
-                }
+        all_categories_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+               @Override
+               public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
+                   if (isChecked) {
+                       academics_checkbox.setChecked(true);
+                       books_checkbox.setChecked(true);
+                       electronics_checkbox.setChecked(true);
+                       food_checkbox.setChecked(true);
+                       misc_checkbox.setChecked(true);
+                       movies_checkbox.setChecked(true);
+                       nature_checkbox.setChecked(true);
+                       shopping_checkbox.setChecked(true);
+                       sports_checkbox.setChecked(true);
+                   } else {
+                       academics_checkbox.setChecked(false);
+                       books_checkbox.setChecked(false);
+                       electronics_checkbox.setChecked(false);
+                       food_checkbox.setChecked(false);
+                       misc_checkbox.setChecked(false);
+                       movies_checkbox.setChecked(false);
+                       nature_checkbox.setChecked(false);
+                       shopping_checkbox.setChecked(false);
+                       sports_checkbox.setChecked(false);
+                   }
+               }
             }
-        });
+        );
+
+//        if (isChecked) {
+//                    academics_checkbox.setChecked(true);
+//                    books_checkbox.setChecked(true);
+//                    electronics_checkbox.setChecked(true);
+//                    food_checkbox.setChecked(true);
+//                    misc_checkbox.setChecked(true);
+//                    movies_checkbox.setChecked(true);
+//                    nature_checkbox.setChecked(true);
+//                    shopping_checkbox.setChecked(true);
+//                    sports_checkbox.setChecked(true);
+//                } else {
+//                    academics_checkbox.setChecked(false);
+//                    books_checkbox.setChecked(false);
+//                    electronics_checkbox.setChecked(false);
+//                    food_checkbox.setChecked(false);
+//                    misc_checkbox.setChecked(false);
+//                    movies_checkbox.setChecked(false);
+//                    nature_checkbox.setChecked(false);
+//                    shopping_checkbox.setChecked(false);
+//                    sports_checkbox.setChecked(false);
+//                }
+//            }
+//        });
 
 
 

@@ -1,8 +1,9 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="edu.umd.cs.pollster.CategoriesFragment">
+    android:orientation="vertical"
+    tools:context="edu.umd.cs.pollsternav.CategoriesFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -10,112 +11,310 @@
         android:text="@string/categories_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="18dp"
-        android:id="@+id/categories" />
+        android:id="@+id/categories"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:fontFamily="sans-serif" />
 
-    <TextView
-        android:text="@string/all_categories_label"
+    <!--<TextView-->
+        <!--android:text="@string/all_categories_label"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/categories"-->
+        <!--android:layout_alignLeft="@+id/toggleButton"-->
+        <!--android:layout_alignStart="@+id/toggleButton"-->
+        <!--android:layout_marginTop="13dp"-->
+        <!--android:id="@+id/all_categories_label" />-->
+
+    <!--<ToggleButton-->
+        <!--android:text="@string/all_categories_label"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginLeft="10dp"-->
+        <!--android:layout_marginStart="10dp"-->
+        <!--android:id="@+id/toggleButton"-->
+        <!--android:layout_below="@+id/all_categories_label"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_alignParentStart="true" />-->
+
+    <!-- All Categories -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/categories"
-        android:layout_alignLeft="@+id/toggleButton"
-        android:layout_alignStart="@+id/toggleButton"
-        android:layout_marginTop="13dp"
-        android:id="@+id/all_categories_label" />
+        android:orientation="horizontal">
 
-    <ToggleButton
-        android:text="@string/all_categories_label"
+        <ImageView
+            android:id="@+id/subject_icon"
+            android:src="@mipmap/ic_categories"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/all_categories_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/subject_icon"
+            android:layout_marginTop="5dp"
+            android:id="@+id/all_categories" />
+    </LinearLayout>
+
+
+    <!-- Academics -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginStart="10dp"
-        android:id="@+id/toggleButton"
-        android:layout_below="@+id/all_categories_label"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/academics_label"
+        <ImageView
+            android:id="@+id/academics"
+            android:src="@mipmap/ic_academics"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/academics_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/academics"
+            android:layout_marginTop="5dp"
+            android:id="@+id/academics_check" />
+    </LinearLayout>
+
+    <!-- Books -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/toggleButton"
-        android:layout_alignLeft="@+id/toggleButton"
-        android:layout_alignStart="@+id/toggleButton"
-        android:layout_marginTop="13dp"
-        android:id="@+id/academics_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/books_label"
+        <ImageView
+            android:id="@+id/books"
+            android:src="@mipmap/ic_book_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/books_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/books"
+            android:layout_marginTop="5dp"
+            android:id="@+id/books_check" />
+    </LinearLayout>
+
+
+    <!-- Electronics -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/academics_check"
-        android:layout_alignLeft="@+id/academics_check"
-        android:layout_alignStart="@+id/academics_check"
-        android:id="@+id/books_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/electronics_label"
+        <ImageView
+            android:id="@+id/electronics"
+            android:src="@mipmap/ic_electronics"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/electronics_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/electronics"
+            android:layout_marginTop="5dp"
+            android:id="@+id/electronics_check" />
+    </LinearLayout>
+
+
+    <!-- Food -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/books_check"
-        android:layout_alignLeft="@+id/books_check"
-        android:layout_alignStart="@+id/books_check"
-        android:id="@+id/electronics_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/food_label"
+        <ImageView
+            android:id="@+id/food"
+            android:src="@mipmap/ic_food_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/food_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/food"
+            android:layout_marginTop="5dp"
+            android:id="@+id/food_check" />
+    </LinearLayout>
+
+
+    <!-- Miscellaneous -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/electronics_check"
-        android:layout_alignLeft="@+id/electronics_check"
-        android:layout_alignStart="@+id/electronics_check"
-        android:id="@+id/food_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/miscellaneous_label"
+        <ImageView
+            android:id="@+id/misc"
+            android:src="@mipmap/ic_miscellaneous"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/miscellaneous_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/misc"
+            android:layout_marginTop="5dp"
+            android:id="@+id/misc_check" />
+    </LinearLayout>
+
+
+    <!-- Movies -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/food_check"
-        android:layout_alignLeft="@+id/food_check"
-        android:layout_alignStart="@+id/food_check"
-        android:id="@+id/misc_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/movies_label"
+        <ImageView
+            android:id="@+id/movies"
+            android:src="@mipmap/ic_movies_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/movies_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/movies"
+            android:layout_marginTop="5dp"
+            android:id="@+id/movies_check" />
+    </LinearLayout>
+
+    <!-- Nature -->
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/misc_check"
-        android:layout_alignLeft="@+id/misc_check"
-        android:layout_alignStart="@+id/misc_check"
-        android:id="@+id/movies_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/nature_label"
+        <ImageView
+            android:id="@+id/nature"
+            android:src="@mipmap/ic_nature"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/nature_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/nature"
+            android:layout_marginTop="5dp"
+            android:id="@+id/nature_check" />
+    </LinearLayout>
+
+    <!-- Shopping -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/movies_check"
-        android:layout_alignLeft="@+id/movies_check"
-        android:layout_alignStart="@+id/movies_check"
-        android:id="@+id/nature_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/shopping_label"
+        <ImageView
+            android:id="@+id/shopping"
+            android:src="@mipmap/ic_shopping_24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/shopping_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/shoppin"
+            android:layout_marginTop="5dp"
+            android:id="@+id/shopping_check" />
+    </LinearLayout>
+
+
+    <!-- Sports -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/nature_check"
-        android:layout_alignLeft="@+id/nature_check"
-        android:layout_alignStart="@+id/nature_check"
-        android:id="@+id/shopping_check" />
+        android:orientation="horizontal">
 
-    <CheckBox
-        android:text="@string/sports_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/shopping_check"
-        android:layout_alignLeft="@+id/shopping_check"
-        android:layout_alignStart="@+id/shopping_check"
-        android:id="@+id/sports_check" />
+        <ImageView
+            android:id="@+id/sports"
+            android:src="@mipmap/ic_sports"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp" />
+        <CheckBox
+            android:text="@string/sports_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@+id/sports"
+            android:layout_marginTop="5dp"
+            android:id="@+id/sports_check" />
+    </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
