@@ -14,6 +14,7 @@ public class LiveFeedFragment extends Fragment {
     public LiveFeedFragment() {
     }
 
+
     public static edu.umd.cs.pollsternav.LiveFeedFragment newInstance() {
         return new edu.umd.cs.pollsternav.LiveFeedFragment();
     }

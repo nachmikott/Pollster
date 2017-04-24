@@ -12,10 +12,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
 public class LiveFeedActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public int REQUEST_CODE_CHANGE_CATEGORIES = 1;
+
+    String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +27,11 @@ public class LiveFeedActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        username = (String)getIntent().getExtras().get("USER");
+        Toast.makeText(this, "Username is "+username,
+                Toast.LENGTH_LONG).show();
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_new_post);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -36,6 +45,8 @@ public class LiveFeedActivity extends AppCompatActivity
             }
         });
 
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.open, R.string.close);
@@ -44,6 +55,9 @@ public class LiveFeedActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+
     }
 
     @Override

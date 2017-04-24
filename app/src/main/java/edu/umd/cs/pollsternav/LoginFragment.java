@@ -233,6 +233,7 @@ public class LoginFragment extends Fragment {
                 Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(activity, LiveFeedActivity.class);
+        intent.putExtra("USER",user);
         startActivity(intent);
     }
 
