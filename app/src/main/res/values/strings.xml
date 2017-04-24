@@ -30,6 +30,10 @@
     <string name="food_label">Food</string>
     <string name="miscellaneous_label">Miscellaneous</string>
 
+    <!-- Save and Cancel Button Strings for Category selection -->
+    <string name="save_button">Save</string>
+    <string name="cancel_button">Cancel</string>
+
     <string name="vote_stats_label">Vote Statistics</string>
     <string name="vote_stats_label_a">Option A</string>
     <string name="vote_stats_label_b">Option B</string>

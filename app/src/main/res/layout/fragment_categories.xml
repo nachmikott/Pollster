@@ -317,4 +317,26 @@
             android:id="@+id/sports_check" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center" 
+        android:weightSum="2">
+        <Button
+            android:text="@string/cancel_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_button"
+            android:layout_weight="1"/>
+
+        <Button
+            android:text="@string/save_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/save_button"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
 </LinearLayout>

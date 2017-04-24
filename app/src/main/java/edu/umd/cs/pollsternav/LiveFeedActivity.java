@@ -1,6 +1,7 @@
 package edu.umd.cs.pollsternav;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -29,11 +30,14 @@ public class LiveFeedActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         username = (String)getIntent().getExtras().get("USER");
-        Toast.makeText(this, "Username is "+username,
-                Toast.LENGTH_LONG).show();
+
+//        Toast.makeText(this, "Username is "+username,
+//                Toast.LENGTH_LONG).show();
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_new_post);
+        fab.getBackground().setColorFilter(0xFF979AC6, PorterDuff.Mode.MULTIPLY);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,6 +60,11 @@ public class LiveFeedActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        View navHeader =  navigationView.getHeaderView(0);
+        TextView nav_user = (TextView) navHeader.findViewById(R.id.username_text);
+        nav_user.setText(username);
+
+        navHeader.getBackground().setColorFilter(0xFF979AC6, PorterDuff.Mode.MULTIPLY);
 
 
     }
