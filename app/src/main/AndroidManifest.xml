@@ -25,6 +25,7 @@
             android:parentActivityName=".LiveFeedActivity" />
         <activity android:name=".CategoriesActivity"/>
         <activity android:name=".MyVotesActivity"/>
+        <activity android:name=".NewPostActivity"/>
     </application>
 
 </manifest>

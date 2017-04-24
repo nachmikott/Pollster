@@ -210,15 +210,15 @@ public class LoginFragment extends Fragment {
 
     public void click_login() {
 
-        Boolean verified = true;
-
         String enteredUser = user_et.getText().toString();
         String enteredPass = pass_et.getText().toString();
 
         //TODO: Check if it is in the database
 
+        Boolean verified = (enteredUser.length() > 0 && enteredPass.length() > 0);
+
         if (verified == false) {
-            Toast.makeText(getActivity(), "Incorrect username or password",
+            Toast.makeText(getActivity(), "Incorrect username or password (for testing, just enter any user/pass)",
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -229,7 +229,7 @@ public class LoginFragment extends Fragment {
 
     //Start the feed activity, passing the username to it
     public void login_complete(String user) {
-        Toast.makeText(getActivity(), "Starting the feed activity",
+        Toast.makeText(getActivity(), "Starting the feed activity for user: "+user,
                 Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(activity, LiveFeedActivity.class);
