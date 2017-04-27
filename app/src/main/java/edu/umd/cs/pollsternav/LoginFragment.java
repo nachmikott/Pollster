@@ -10,15 +10,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +23,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
+import edu.umd.cs.pollsternav.service.impl.UserSpecificsService;
+import android.view.WindowManager;
 
 
 /*  Currently the login system just stores in memory (not a real login system).
@@ -47,6 +44,7 @@ public class LoginFragment extends Fragment {
     Button signup_button;
 
     InputFilter inputFilter;
+    UserSpecificsService userSpecificsService;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,8 +52,13 @@ public class LoginFragment extends Fragment {
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        userSpecificsService = DependencyFactory.getUserSpecificsService(getActivity().getApplicationContext());
+
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         activity = getActivity();
+
+        // If the user is already logged in, than go straight into the LiveFeedFragment
+        if(userSpecificsService.loggedIn()) login_complete(userSpecificsService.getUserName());
 
         //Will use this to restrict Edit Texts to letters and numbers
         inputFilter = new InputFilter() {
@@ -73,16 +76,16 @@ public class LoginFragment extends Fragment {
         };
 
         //Initialize the textfields and restrict their input to letters and numbers
-        user_et = (EditText)view.findViewById(R.id.username_et);
-        user_et.setFilters((new InputFilter[] { inputFilter }));
-        pass_et = (EditText)view.findViewById(R.id.password_et);
-        pass_et.setFilters((new InputFilter[] { inputFilter }));
+        user_et = (EditText) view.findViewById(R.id.username_et);
+        user_et.setFilters((new InputFilter[]{inputFilter}));
+        pass_et = (EditText) view.findViewById(R.id.password_et);
+        pass_et.setFilters((new InputFilter[]{inputFilter}));
 
         user_et.getBackground().setColorFilter(0xFFEFC270, PorterDuff.Mode.SRC_IN);
         pass_et.getBackground().setColorFilter(0xFFEFC270, PorterDuff.Mode.SRC_IN);
 
         //Click login, check if user and pass exist
-        login_button = (Button)view.findViewById(R.id.login_button);
+        login_button = (Button) view.findViewById(R.id.login_button);
         login_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 click_login();
@@ -92,7 +95,7 @@ public class LoginFragment extends Fragment {
 
 
         //Click sign up, create a popup to make a new user/pass
-        signup_button = (Button)view.findViewById(R.id.signup_button);
+        signup_button = (Button) view.findViewById(R.id.signup_button);
         signup_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 click_signup(0, "");
@@ -155,7 +158,7 @@ public class LoginFragment extends Fragment {
 
         //Always show the soft keyboard
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         //Show the alert dialog to the user
         new AlertDialog.Builder(activity)
@@ -188,11 +191,15 @@ public class LoginFragment extends Fragment {
                             return;
                         }
 
-                        //TODO: Add the new account to the SQLite database
-                        //...
+                        // Add the new account to the SQLite database
+                        userSpecificsService.addUser(newUser, newPass);
 
                         Toast.makeText(getActivity(), "Successfully created account!",
                                 Toast.LENGTH_SHORT).show();
+
+                        getActivity().getWindow().setSoftInputMode(
+                                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                        );
 
                         login_complete(newUser);
 
@@ -216,6 +223,8 @@ public class LoginFragment extends Fragment {
         //TODO: Check if it is in the database
 
         Boolean verified = (enteredUser.length() > 0 && enteredPass.length() > 0);
+
+        userSpecificsService.addUser(enteredUser, enteredPass);
 
         if (verified == false) {
             Toast.makeText(getActivity(), "Incorrect username or password (for testing, just enter any user/pass)",

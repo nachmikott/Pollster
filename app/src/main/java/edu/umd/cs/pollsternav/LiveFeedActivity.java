@@ -18,32 +18,29 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
+import edu.umd.cs.pollsternav.service.impl.UserSpecificsService;
 
 public class LiveFeedActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public int REQUEST_CODE_CHANGE_CATEGORIES = 1;
     private DrawerLayout drawer;
 
+    UserSpecificsService userSpecificsService;
     String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        userSpecificsService = DependencyFactory.getUserSpecificsService(getApplicationContext());
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         username = (String)getIntent().getExtras().get("USER");
 
-        if(getIntent().getExtras().get("CATEGORY_UPDATE") != null) {
-            Log.d("Categories", getIntent().getExtras().get("CATEGORY_UPDATE").toString());
-            Toast.makeText(this, "Categories Are " + getIntent().getExtras().get("CATEGORY_UPDATE").toString() ,
-                    Toast.LENGTH_LONG).show();
-        }
-
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_new_post);
-        //fab.getBackground().setColorFilter(0xFF979AC6, PorterDuff.Mode.MULTIPLY);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,11 +66,10 @@ public class LiveFeedActivity extends AppCompatActivity
 
         View navHeader =  navigationView.getHeaderView(0);
         TextView nav_user = (TextView) navHeader.findViewById(R.id.username_text);
-        nav_user.setText(username);
+        String userName = userSpecificsService.getUserName();
 
-        navHeader.getBackground().setColorFilter(0xFF979AC6, PorterDuff.Mode.MULTIPLY);
-
-
+        //nav_user.setText(userSpecificsService.getUserName());
+        nav_user.setText(userName);
     }
 
     @Override
@@ -96,6 +92,9 @@ public class LiveFeedActivity extends AppCompatActivity
             if (data == null) {
                 return;
             }
+
+            Toast.makeText(this, "Categories Are " + userSpecificsService.getCategoryPreferences(userSpecificsService.getUserName()).toString() ,
+                    Toast.LENGTH_LONG).show();
             //Debugging Purposes
 //            Toast.makeText(this, "Categories Are " + data.getExtras().get("CATEGORY_UPDATE").toString() ,
 //                    Toast.LENGTH_LONG).show();
@@ -112,13 +111,13 @@ public class LiveFeedActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.categories) {
-            Intent createStoryIntent = new Intent(this, CategoriesActivity.class);
-            startActivityForResult(createStoryIntent, REQUEST_CODE_CHANGE_CATEGORIES);
+            Intent categoriesIntent = new Intent(this, CategoriesActivity.class);
+            startActivityForResult(categoriesIntent, REQUEST_CODE_CHANGE_CATEGORIES);
             drawer.closeDrawer(Gravity.LEFT);
             return true;
         } else if (id == R.id.my_posts) {
-            Intent createStoryIntent = new Intent(this, MyPostActivity.class);
-            startActivity(createStoryIntent);
+            Intent myPostsIntent = new Intent(this, MyPostActivity.class);
+            startActivity(myPostsIntent);
         } else if (id == R.id.my_votes) {
 
         } else if (id == R.id.find_friends) {
@@ -126,7 +125,9 @@ public class LiveFeedActivity extends AppCompatActivity
         } else if (id == R.id.settings) {
 
         } else if (id == R.id.log_out) {
-
+            userSpecificsService.signOut();
+            Intent loginIntent = new Intent(this, LoginActivity.class);
+            startActivity(loginIntent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
