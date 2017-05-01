@@ -10,14 +10,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +27,14 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import static com.google.android.gms.internal.zzt.TAG;
+import edu.umd.cs.pollsternav.service.impl.UserSpecificsService;
+import android.view.WindowManager;
 
 
 /*  Currently the login system just stores in memory (not a real login system).
@@ -47,15 +54,24 @@ public class LoginFragment extends Fragment {
     Button signup_button;
 
     InputFilter inputFilter;
+    UserSpecificsService userSpecificsService;
+
+    private FirebaseAuth mAuth;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mAuth = FirebaseAuth.getInstance();
     }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        userSpecificsService = DependencyFactory.getUserSpecificsService(getActivity().getApplicationContext());
+
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         activity = getActivity();
+
+        // If the user is already logged in, than go straight into the LiveFeedActivity
+        if(userSpecificsService.loggedIn()) login_complete(userSpecificsService.getUserName());
 
         //Will use this to restrict Edit Texts to letters and numbers
         inputFilter = new InputFilter() {
@@ -72,17 +88,18 @@ public class LoginFragment extends Fragment {
             }
         };
 
+
         //Initialize the textfields and restrict their input to letters and numbers
-        user_et = (EditText)view.findViewById(R.id.username_et);
-        user_et.setFilters((new InputFilter[] { inputFilter }));
-        pass_et = (EditText)view.findViewById(R.id.password_et);
-        pass_et.setFilters((new InputFilter[] { inputFilter }));
+        user_et = (EditText) view.findViewById(R.id.username_et);
+        user_et.setFilters((new InputFilter[]{inputFilter}));
+        pass_et = (EditText) view.findViewById(R.id.password_et);
+        pass_et.setFilters((new InputFilter[]{inputFilter}));
 
         user_et.getBackground().setColorFilter(0xFFEFC270, PorterDuff.Mode.SRC_IN);
         pass_et.getBackground().setColorFilter(0xFFEFC270, PorterDuff.Mode.SRC_IN);
 
         //Click login, check if user and pass exist
-        login_button = (Button)view.findViewById(R.id.login_button);
+        login_button = (Button) view.findViewById(R.id.login_button);
         login_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 click_login();
@@ -92,7 +109,7 @@ public class LoginFragment extends Fragment {
 
 
         //Click sign up, create a popup to make a new user/pass
-        signup_button = (Button)view.findViewById(R.id.signup_button);
+        signup_button = (Button) view.findViewById(R.id.signup_button);
         signup_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 click_signup(0, "");
@@ -101,6 +118,19 @@ public class LoginFragment extends Fragment {
         signup_button.getBackground().setColorFilter(0xFF979AC6, PorterDuff.Mode.MULTIPLY);
 
         return view;
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
+    }
+
+    private void updateUI(FirebaseUser currentUser) {
+        if (currentUser != null) {
+            login_complete(currentUser.getEmail());
+        }
     }
 
     //Create an alert dialog where the user will enter their new username and password
@@ -127,7 +157,7 @@ public class LoginFragment extends Fragment {
         LinearLayout fields_layout = new LinearLayout(activity);
         fields_layout.setOrientation(LinearLayout.VERTICAL);
         final EditText signup_user_et = new EditText(activity);
-        signup_user_et.setFilters((new InputFilter[] { inputFilter }));
+        //signup_user_et.setFilters((new InputFilter[] { inputFilter }));
         signup_user_et.setHint("Username");
         fields_layout.addView(signup_user_et);
 
@@ -155,7 +185,7 @@ public class LoginFragment extends Fragment {
 
         //Always show the soft keyboard
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         //Show the alert dialog to the user
         new AlertDialog.Builder(activity)
@@ -188,13 +218,19 @@ public class LoginFragment extends Fragment {
                             return;
                         }
 
-                        //TODO: Add the new account to the SQLite database
-                        //...
+                        // Add the new account to the SQLite database
+                        userSpecificsService.addUser(newUser, newPass);
 
                         Toast.makeText(getActivity(), "Successfully created account!",
                                 Toast.LENGTH_SHORT).show();
 
-                        login_complete(newUser);
+                        getActivity().getWindow().setSoftInputMode(
+                                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                        );
+
+                        newUser(newUser, newPass, null);
+
+                        //login_complete(newUser);
 
                     }
                 })
@@ -217,26 +253,87 @@ public class LoginFragment extends Fragment {
 
         Boolean verified = (enteredUser.length() > 0 && enteredPass.length() > 0);
 
+        userSpecificsService.addUser(enteredUser, enteredPass);
+
         if (verified == false) {
             Toast.makeText(getActivity(), "Incorrect username or password (for testing, just enter any user/pass)",
                     Toast.LENGTH_SHORT).show();
             return;
         }
 
-        login_complete(enteredUser);
+        //login_complete(enteredUser);
+
+        login(enteredUser, enteredPass);
 
     }
+
+
+    private void login(String username, String password){
+        // Login to the app with email and password by Firebase
+        mAuth.signInWithEmailAndPassword(username, password)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(LoginFragment.this.getContext(), "Authentication failed. - " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void newUser(String username, String password, String imagePath){
+        // Create user with email and password by Firebase
+        mAuth.createUserWithEmailAndPassword(username, password)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(LoginFragment.this.getContext(), "Authentication failed. - " + task.getException().getMessage(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+
+    //Start the feed activity, passing the username to it
+    //public void login_complete(String user) {
+    //  Toast.makeText(getActivity(), "Starting the feed activity for user: "+user,
+    //            Toast.LENGTH_SHORT).show();
+
+    //    Intent intent = new Intent(activity, LiveFeedActivity.class);
+    //    intent.putExtra("USER",user);
+    //    startActivity(intent);
+    //}
 
     //Start the feed activity, passing the username to it
     public void login_complete(String user) {
-        Toast.makeText(getActivity(), "Starting the feed activity for user: "+user,
+        if (TextUtils.isEmpty(user)) {
+            return;
+        }
+        Toast.makeText(getActivity(), "Starting the feed activity for user: " + user,
                 Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(activity, LiveFeedActivity.class);
-        intent.putExtra("USER",user);
+        intent.putExtra("USER", user);
         startActivity(intent);
+        getActivity().finish();
     }
-
 
 
     public static LoginFragment newInstance() {
