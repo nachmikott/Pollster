@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.umd.cs.pollsternav">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_pollster_icon_24dp"
@@ -17,15 +21,14 @@
         <activity
             android:name=".LiveFeedActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MyPostActivity"
             android:label="@string/action_my_post"
             android:parentActivityName=".LiveFeedActivity" />
-        <activity android:name=".CategoriesActivity"/>
-        <activity android:name=".MyVotesActivity"/>
-        <activity android:name=".NewPostActivity"/>
+        <activity android:name=".CategoriesActivity" />
+        <activity android:name=".MyVotesActivity" />
+        <activity android:name=".NewPostActivity" />
     </application>
 
 </manifest>
