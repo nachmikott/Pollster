@@ -57,7 +57,7 @@ public class LoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         activity = getActivity();
 
-        // If the user is already logged in, than go straight into the LiveFeedFragment
+        // If the user is already logged in, than go straight into the LiveFeedActivity
         if(userSpecificsService.loggedIn()) login_complete(userSpecificsService.getUserName());
 
         //Will use this to restrict Edit Texts to letters and numbers
@@ -74,6 +74,7 @@ public class LoginFragment extends Fragment {
                 return "";
             }
         };
+
 
         //Initialize the textfields and restrict their input to letters and numbers
         user_et = (EditText) view.findViewById(R.id.username_et);
