@@ -81,7 +81,13 @@ public class LoginFragment extends Fragment {
                 if (cs.equals("")) { // for backspace
                     return cs;
                 }
-                if (cs.toString().matches("[a-zA-Z0-9]+")) {
+                if (cs.toString().matches("^[a-zA-Z0-9]+")) {
+                    return cs;
+                }
+                if (cs.toString().matches("@")) {
+                    return cs;
+                }
+                if (cs.toString().matches(".")) {
                     return cs;
                 }
                 return "";

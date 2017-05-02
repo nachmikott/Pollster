@@ -26,11 +26,26 @@
     <!--android:layout_marginRight="14dp"-->
     <!--android:layout_marginEnd="14dp" />-->
 
-    <ImageView
-        android:id="@+id/first_image"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center" />
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <ImageView
+            android:id="@+id/first_image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center" />
+
+        <ImageView
+            android:id="@+id/voted_first"
+            android:src="@mipmap/ic_thumb_up_black_24dp"
+            android:scaleType="fitCenter"
+            android:layout_height="25dp"
+            android:layout_width="25dp"
+            android:layout_gravity="center"
+            android:visibility="invisible" />
+    </FrameLayout>
+
 
     <TextView
         android:id="@+id/upVote_for_post_1"
@@ -42,11 +57,25 @@
         android:layout_marginBottom="25dp"
         android:textSize="14sp" />
 
-    <ImageView
-        android:id="@+id/second_image"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:layout_gravity="center"/>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <ImageView
+            android:id="@+id/second_image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center"/>
+
+        <ImageView
+            android:id="@+id/voted_second"
+            android:src="@mipmap/ic_thumb_up_black_24dp"
+            android:scaleType="fitCenter"
+            android:layout_height="25dp"
+            android:layout_width="25dp"
+            android:layout_gravity="center"
+            android:visibility="invisible" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/upVote_for_post_2"

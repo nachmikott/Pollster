@@ -3,6 +3,7 @@ package edu.umd.cs.pollsternav;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.PorterDuff;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -61,6 +62,8 @@ public class LiveFeedActivity extends AppCompatActivity
     //    public TextView image1Votes;
 //    public TextView image2Votes;
     public List<Post> posts;
+    private float initialX;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,8 @@ public class LiveFeedActivity extends AppCompatActivity
         username = (String)getIntent().getExtras().get("USER");
 
         liveFeedFlipper = (ViewFlipper) findViewById(R.id.viewFlipperForPosts);
+        liveFeedFlipper.setInAnimation(this, android.R.anim.fade_in);
+        liveFeedFlipper.setOutAnimation(this, android.R.anim.fade_out);
 
         //Gesture Detector
         gestureDetector = new GestureDetectorCompat(this, this);
@@ -92,10 +97,10 @@ public class LiveFeedActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                liveFeedFlipper.showNext();
-//                //Go to the new post screen
-//                Intent intent = new Intent(getBaseContext(), NewPostActivity.class);
-//                startActivity(intent);
+//                liveFeedFlipper.showNext();
+                 //Go to the new post screen
+                Intent intent = new Intent(getBaseContext(), NewPostActivity.class);
+                startActivity(intent);
 
             }
         });
@@ -127,6 +132,35 @@ public class LiveFeedActivity extends AppCompatActivity
         }
     }
 
+    public boolean onTouchEvent(MotionEvent touchevent) {
+        switch (touchevent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                initialX = touchevent.getX();
+                break;
+            case MotionEvent.ACTION_UP:
+                float finalX = touchevent.getX();
+                if (initialX > finalX) {
+                    if (liveFeedFlipper.getDisplayedChild() == 1)
+                        break;
+
+ /*TruitonFlipper.setInAnimation(this, R.anim.in_right);
+ TruitonFlipper.setOutAnimation(this, R.anim.out_left);*/
+
+                    liveFeedFlipper.showNext();
+                } else {
+                    if (liveFeedFlipper.getDisplayedChild() == 0)
+                        break;
+
+ /*TruitonFlipper.setInAnimation(this, R.anim.in_left);
+ TruitonFlipper.setOutAnimation(this, R.anim.out_right);*/
+
+                    liveFeedFlipper.showPrevious();
+                }
+                break;
+        }
+        return false;
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_OK) {
@@ -144,14 +178,15 @@ public class LiveFeedActivity extends AppCompatActivity
             //HERE IS WHERE WE MUST UPDATE THE LIVEFEED BASED ON THE PREFERENCE OF CATEGORIES OF THE USER.
 
         } else if (requestCode == REQUEST_CODE_ADD_NEW_POST) {
-            //TODO: Here is where we must update to sqlite and update to livefeed
+            //TODO: Here is where we must update to FireBase and update to livefeed
             String title = data.getStringExtra(EXTRA_POST_TITLE);
             String pic1Path = data.getStringExtra(EXTRA_PIC1_PATH);
             String pic2Path = data.getStringExtra(EXTRA_PIC2_PATH);
             //CategoriesFragment.Categories category = data.getIntExtra(EXTRA_CATEGORY, -1);
             int votes1 = data.getIntExtra(EXTRA_VOTES_1, 0);
             int votes2 = data.getIntExtra(EXTRA_VOTES_2, 0);
-            insertNewPost(username, title, CategoriesFragment.Categories.BOOKS, pic1Path, pic2Path, votes1, votes2);
+            //TODO: This is hardcoded! We should be recieving the Category type from the intent as well.
+            insertNewPost(username, title, /*HARDCODED! MUST BE CHANGED!!!*/CategoriesFragment.Categories.BOOKS, pic1Path, pic2Path, votes1, votes2);
         }
     }
 
@@ -201,6 +236,9 @@ public class LiveFeedActivity extends AppCompatActivity
 
         } else if (id == R.id.log_out) {
             FirebaseAuth.getInstance().signOut();
+            Intent loginActivityIntent = new Intent(this, LoginActivity.class);
+            userSpecificsService.signOut();
+            startActivity(loginActivityIntent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -220,7 +258,11 @@ public class LiveFeedActivity extends AppCompatActivity
             final TextView image2Votes;
             final ImageView image1;
             final ImageView image2;
+            final ImageView voted1;
+            final ImageView voted2;
+
             liveFeedFlipper.addView(view);
+
 
             //Fill in the ImageViews with the actual thumbnail of this picture.
             image1 = (ImageView) view.findViewById(R.id.first_image);
@@ -228,6 +270,10 @@ public class LiveFeedActivity extends AppCompatActivity
 
             image1.setBackgroundResource(posts.get(i).getPic1());
             image2.setBackgroundResource(posts.get(i).getPic2());
+
+            //Thumbs Up for when voted will overlay the actual image
+            voted1 = (ImageView) view.findViewById(R.id.voted_first);
+            voted2 = (ImageView) view.findViewById(R.id.voted_second);
 
             if(posts.get(i).getCategory().equals(CategoriesFragment.Categories.NATURE)) {
                 // WE WILL WANT TO USE A BITMAP
@@ -245,26 +291,72 @@ public class LiveFeedActivity extends AppCompatActivity
             image1Votes.setText(String.valueOf(posts.get(i).getPic1Votes()));
             image2Votes.setText(String.valueOf(posts.get(i).getPic2Votes()));
 
+
+
             //On Click Listeners For Eeach Image, When an image is clicked, its votes are incremented.
             image1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer newVote = Integer.parseInt(image1Votes.getText().toString()) + 1;
-                    image1Votes.setText(newVote.toString());
+                    if(voted1.getVisibility() != View.VISIBLE) { // User votes once.
+                        voted1.setVisibility(View.VISIBLE);
+
+                        Integer newVote = Integer.parseInt(image1Votes.getText().toString()) + 1;
+                        image1Votes.setText(newVote.toString());
+
+                        image1.setColorFilter(Color.argb(150,200,200,200));
+
+                        if(voted2.getVisibility() == View.VISIBLE) { // Switch from vote2 to vote1
+                            voted2.setVisibility(View.INVISIBLE);
+
+                            image2.setColorFilter(null);
+
+                            Integer newVote2 = Integer.parseInt(image2Votes.getText().toString()) - 1;
+                            image2Votes.setText(newVote2.toString());
+                        }
+
+                    } else { // User takes back their vote.
+                        voted1.setVisibility(View.INVISIBLE);
+
+                        image1.setColorFilter(null);
+
+                        Integer newVote = Integer.parseInt(image1Votes.getText().toString()) - 1;
+                        image1Votes.setText(newVote.toString());
+                    }
                 }
             });
             image2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Integer newVote = Integer.parseInt(image2Votes.getText().toString()) + 1;
-                    image2Votes.setText(newVote.toString());
+                    if(voted2.getVisibility() != View.VISIBLE) { // User votes once.
+                        voted2.setVisibility(View.VISIBLE);
+
+                        Integer newVote = Integer.parseInt(image2Votes.getText().toString()) + 1;
+                        image2Votes.setText(newVote.toString());
+
+                        image2.setColorFilter(Color.argb(150,200,200,200));
+
+                        if(voted1.getVisibility() == View.VISIBLE) { // Switch from vote2 to vote1
+                            voted1.setVisibility(View.INVISIBLE);
+
+                            image1.setColorFilter(null);
+
+                            Integer newVote1 = Integer.parseInt(image1Votes.getText().toString()) - 1;
+                            image1Votes.setText(newVote1.toString());
+                        }
+
+
+
+                    } else { // User takes back their vote.
+                        voted2.setVisibility(View.INVISIBLE);
+
+                        image2.setColorFilter(null);
+
+                        Integer newVote = Integer.parseInt(image2Votes.getText().toString()) - 1;
+                        image2Votes.setText(newVote.toString());
+                    }
+
                 }
             });
-
-
-
-
-            //Set Up Face of user at some point.
         }
         // This will be in the form of a Gesture.
         setFlipperAnimation();
@@ -294,7 +386,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
     @Override
     public boolean onDown(MotionEvent e) {
-        return false;
+        return true;
     }
 
     @Override
@@ -309,7 +401,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
+        return true;
     }
 
     @Override
@@ -319,6 +411,6 @@ public class LiveFeedActivity extends AppCompatActivity
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        return false;
+        return true;
     }
 }
