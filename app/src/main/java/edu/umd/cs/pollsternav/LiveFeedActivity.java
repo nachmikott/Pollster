@@ -34,6 +34,8 @@ import android.content.Context;
 import android.view.GestureDetector;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class LiveFeedActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GestureDetector.OnGestureListener{
@@ -53,23 +55,25 @@ public class LiveFeedActivity extends AppCompatActivity
     UserSpecificsService userSpecificsService;
     String username;
     public ViewFlipper liveFeedFlipper;
-//    public ImageView image1;
-//    public ImageView image2;
     public TextView postTitle;
     public UserSpecificsService userSpecs;
     public GestureDetectorCompat gestureDetector;
     public String DEBUG_TAG = "GESTURE DETECTION";
-    //    public TextView image1Votes;
-//    public TextView image2Votes;
     public List<Post> posts;
     private float initialX;
+
+    private StorageReference fireBaseStorage;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // SQLite Service for maintaining specifications particularly for this user
         userSpecificsService = DependencyFactory.getUserSpecificsService(getApplicationContext());
+
+        //Storage Reference for uploading and downloading photos for images
+        fireBaseStorage = FirebaseStorage.getInstance().getReference();
 
         setContentView(R.layout.activity_live_feed);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -143,17 +147,10 @@ public class LiveFeedActivity extends AppCompatActivity
                     if (liveFeedFlipper.getDisplayedChild() == 1)
                         break;
 
- /*TruitonFlipper.setInAnimation(this, R.anim.in_right);
- TruitonFlipper.setOutAnimation(this, R.anim.out_left);*/
-
                     liveFeedFlipper.showNext();
                 } else {
                     if (liveFeedFlipper.getDisplayedChild() == 0)
                         break;
-
- /*TruitonFlipper.setInAnimation(this, R.anim.in_left);
- TruitonFlipper.setOutAnimation(this, R.anim.out_right);*/
-
                     liveFeedFlipper.showPrevious();
                 }
                 break;
@@ -171,13 +168,13 @@ public class LiveFeedActivity extends AppCompatActivity
             if (data == null) {
                 return;
             }
-            //Debugging Purposes
-//            Toast.makeText(this, "Categories Are " + data.getExtras().get("CATEGORY_UPDATE").toString() ,
-//                    Toast.LENGTH_LONG).show();
-
             //HERE IS WHERE WE MUST UPDATE THE LIVEFEED BASED ON THE PREFERENCE OF CATEGORIES OF THE USER.
+            setFlipperContent();
+
 
         } else if (requestCode == REQUEST_CODE_ADD_NEW_POST) {
+
+
             //TODO: Here is where we must update to FireBase and update to livefeed
             String title = data.getStringExtra(EXTRA_POST_TITLE);
             String pic1Path = data.getStringExtra(EXTRA_PIC1_PATH);
@@ -187,10 +184,15 @@ public class LiveFeedActivity extends AppCompatActivity
             int votes2 = data.getIntExtra(EXTRA_VOTES_2, 0);
             //TODO: This is hardcoded! We should be recieving the Category type from the intent as well.
             insertNewPost(username, title, /*HARDCODED! MUST BE CHANGED!!!*/CategoriesFragment.Categories.BOOKS, pic1Path, pic2Path, votes1, votes2);
+
+
         }
     }
 
     private void insertNewPost(String username, String title, CategoriesFragment.Categories category, String pic1Path, String pic2Path, int votes1, int votes2) {
+
+
+
 //        if (title == null) {
 //            numberOfPost++;
 //            title = "Sample post " + numberOfPost;
@@ -247,7 +249,7 @@ public class LiveFeedActivity extends AppCompatActivity
     }
 
     private void setFlipperContent() {
-        posts = getPostList();
+        posts = getPostList(); // THIS IS AN EXAMPLE
         int end = posts.size();
 
         for (int i = 0; i < end; i++) {
@@ -367,9 +369,15 @@ public class LiveFeedActivity extends AppCompatActivity
     }
 
     private List<Post> getPostList() {
-        // THIS IS WHERE WE CALL TO THE DATABASE!! WE WILL USE THE CATEGORY PREFERENCES ACCESSED BY THE SQL LITE SERVER ON THE USERS PHON:
-        // userSpecs.getCategoryPreferences(userSpecs.getUserName());
 
+        // THIS IS WHERE WE CALL TO THE DATABASE!! WE WILL USE THE CATEGORY PREFERENCES ACCESSED BY THE SQL LITE SERVER ON THE USERS PHON:
+        // 1) User the UserName, to MAKE SURE YOU DO NOT TAKE IN THE CURRENT USERS'S POSTS
+        //     USING THIS-- >userSpecs.getUserName()
+        // 2) MAKE THE CALL TO FIREBASE TO BRING IN A HUGE LIST OF POSTS, BUT ONLY THE ONES THAT MATCH THE TYPE OF CATEGORIES CHOSEN.
+        //     USING THIS --> userSpecs.getCategoryPreferences(userSpecs.getUserName()); // THIS RETURNS A LIST OF CATEGORIES
+
+        /// ***
+        // 3) POPULATE THE ACTUAL POST OBJECT LIST..
         //FOR TESTING PURPOSES
         int id = getResources().getIdentifier("ic_launcher_pollster_icon_24dp", "mipmap", getPackageName());
 

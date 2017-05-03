@@ -15,6 +15,9 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 import android.widget.ToggleButton;
+import android.widget.Toast;
+
+import edu.umd.cs.pollsternav.service.impl.UserSpecificsService;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -35,6 +38,8 @@ public class CategoriesFragment extends Fragment {
     private CheckBox sports_checkbox;
     private Button saveButton;
     private Button cancelButton;
+
+    private UserSpecificsService userSpecificsService;
 
     public enum Categories {
         ACADEMICS,
@@ -62,6 +67,8 @@ public class CategoriesFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        userSpecificsService = DependencyFactory.getUserSpecificsService(getActivity().getApplicationContext());
     }
 
 
@@ -70,6 +77,11 @@ public class CategoriesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
+
+        userSpecificsService = DependencyFactory.getUserSpecificsService(getActivity().getApplicationContext());
+
+        Toast.makeText(getActivity(), "Categories Are " + userSpecificsService.getCategoryPreferences(userSpecificsService.getUserName()).toString() ,
+                Toast.LENGTH_LONG).show();
 
         academics_checkbox = (CheckBox) view.findViewById(R.id.academics_check);
         books_checkbox = (CheckBox) view.findViewById(R.id.books_check);
@@ -82,6 +94,30 @@ public class CategoriesFragment extends Fragment {
         sports_checkbox = (CheckBox) view.findViewById(R.id.sports_check);
         all_categories_checkbox = (CheckBox) view.findViewById(R.id.all_categories);
 
+        // setting up checkboxes based off most recent category preference of user.
+        for(Categories category : userSpecificsService.getCategoryPreferences(userSpecificsService.getUserName())) {
+            if (category == Categories.ACADEMICS) {
+                academics_checkbox.setChecked(true);
+            } else if (category == Categories.BOOKS) {
+                books_checkbox.setChecked(true);
+            } else  if (category == Categories.ELECTRONICS) {
+                electronics_checkbox.setChecked(true);
+            } else if (category == Categories.FOOD) {
+                food_checkbox.setChecked(true);
+            } else if (category == Categories.MISC) {
+                misc_checkbox.setChecked(true);
+            } else if (category == Categories.MOVIES) {
+                movies_checkbox.setChecked(true);
+            } else if (category == Categories.SHOPPING) {
+                shopping_checkbox.setChecked(true);
+            } else if (category == Categories.SPORTS) {
+                sports_checkbox.setChecked(true);
+            }
+        }
+
+        if(userSpecificsService.getCategoryPreferences(userSpecificsService.getUserName()).size() == 9) {
+            all_categories_checkbox.setChecked(true);
+        }
 
 
 
@@ -91,53 +127,57 @@ public class CategoriesFragment extends Fragment {
 
         all_categories_checkbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
-               @Override
-               public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
-                   if (isChecked) {
-                       academics_checkbox.setChecked(true);
-                       books_checkbox.setChecked(true);
-                       electronics_checkbox.setChecked(true);
-                       food_checkbox.setChecked(true);
-                       misc_checkbox.setChecked(true);
-                       movies_checkbox.setChecked(true);
-                       nature_checkbox.setChecked(true);
-                       shopping_checkbox.setChecked(true);
-                       sports_checkbox.setChecked(true);
-                   } else {
-                       academics_checkbox.setChecked(false);
-                       books_checkbox.setChecked(false);
-                       electronics_checkbox.setChecked(false);
-                       food_checkbox.setChecked(false);
-                       misc_checkbox.setChecked(false);
-                       movies_checkbox.setChecked(false);
-                       nature_checkbox.setChecked(false);
-                       shopping_checkbox.setChecked(false);
-                       sports_checkbox.setChecked(false);
-                   }
-               }
-            }
+                                                               @Override
+                                                               public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
+                                                                   if (isChecked) {
+                                                                       academics_checkbox.setChecked(true);
+                                                                       books_checkbox.setChecked(true);
+                                                                       electronics_checkbox.setChecked(true);
+                                                                       food_checkbox.setChecked(true);
+                                                                       misc_checkbox.setChecked(true);
+                                                                       movies_checkbox.setChecked(true);
+                                                                       nature_checkbox.setChecked(true);
+                                                                       shopping_checkbox.setChecked(true);
+                                                                       sports_checkbox.setChecked(true);
+                                                                   } else {
+                                                                       academics_checkbox.setChecked(false);
+                                                                       books_checkbox.setChecked(false);
+                                                                       electronics_checkbox.setChecked(false);
+                                                                       food_checkbox.setChecked(false);
+                                                                       misc_checkbox.setChecked(false);
+                                                                       movies_checkbox.setChecked(false);
+                                                                       nature_checkbox.setChecked(false);
+                                                                       shopping_checkbox.setChecked(false);
+                                                                       sports_checkbox.setChecked(false);
+                                                                   }
+                                                               }
+                                                           }
         );
 
         saveButton = (Button)view.findViewById(R.id.save_button);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            ArrayList<Categories> categories = new ArrayList<Categories>();
+                ArrayList<Categories> categories = new ArrayList<Categories>();
 
-            if(academics_checkbox.isChecked()) categories.add(Categories.ACADEMICS);
-            if(books_checkbox.isChecked()) categories.add(Categories.BOOKS);
-            if(electronics_checkbox.isChecked()) categories.add(Categories.ELECTRONICS);
-            if(food_checkbox.isChecked()) categories.add(Categories.FOOD);
-            if(misc_checkbox.isChecked()) categories.add(Categories.MISC);
-            if(movies_checkbox.isChecked()) categories.add(Categories.MOVIES);
-            if(nature_checkbox.isChecked()) categories.add(Categories.NATURE);
-            if(shopping_checkbox.isChecked()) categories.add(Categories.SHOPPING);
-            if(sports_checkbox.isChecked()) categories.add(Categories.SPORTS);
+                if(academics_checkbox.isChecked()) categories.add(Categories.ACADEMICS);
+                if(books_checkbox.isChecked()) categories.add(Categories.BOOKS);
+                if(electronics_checkbox.isChecked()) categories.add(Categories.ELECTRONICS);
+                if(food_checkbox.isChecked()) categories.add(Categories.FOOD);
+                if(misc_checkbox.isChecked()) categories.add(Categories.MISC);
+                if(movies_checkbox.isChecked()) categories.add(Categories.MOVIES);
+                if(nature_checkbox.isChecked()) categories.add(Categories.NATURE);
+                if(shopping_checkbox.isChecked()) categories.add(Categories.SHOPPING);
+                if(sports_checkbox.isChecked()) categories.add(Categories.SPORTS);
 
-            Intent data = new Intent();
-            data.putExtra(CATEGORY_UPDATE, categories);
-            getActivity().setResult(RESULT_OK, data);
-            getActivity().finish();
+                //ArrayList<Categories> result = userSpecificsService.getCategoryPreferences(userSpecificsService.getUserName());
+
+                userSpecificsService.updateCategoryPreferences(categories, userSpecificsService.getUserName());
+
+                Intent data = new Intent();
+                data.putExtra(CATEGORY_UPDATE, categories);
+                getActivity().setResult(RESULT_OK, data);
+                getActivity().finish();
             }
         });
 
