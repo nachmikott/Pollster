@@ -21,6 +21,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,9 +33,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import static com.google.android.gms.internal.zzt.TAG;
+
 import edu.umd.cs.pollsternav.service.impl.UserSpecificsService;
-import android.view.WindowManager;
+
+import static com.google.android.gms.internal.zzt.TAG;
 
 
 /*  Currently the login system just stores in memory (not a real login system).
@@ -267,7 +269,7 @@ public class LoginFragment extends Fragment {
             return;
         }
 
-        //login_complete(enteredUser);
+//        login_complete(enteredUser);
 
         login(enteredUser, enteredPass);
 

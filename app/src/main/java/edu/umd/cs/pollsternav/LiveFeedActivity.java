@@ -118,12 +118,12 @@ public class LiveFeedActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        View navHeader =  navigationView.getHeaderView(0);
-        TextView nav_user = (TextView) navHeader.findViewById(R.id.username_text);
+//        View navHeader =  navigationView.getHeaderView(0);
+//        TextView nav_user = (TextView) navHeader.findViewById(R.id.username_text);
         String userName = userSpecificsService.getUserName();
 
         //nav_user.setText(userSpecificsService.getUserName());
-        nav_user.setText(userName);
+//        nav_user.setText(userName);
     }
 
     @Override

@@ -57,4 +57,16 @@
     <string name="login_button_text">Log in</string>
     <string name="signup_button_text">Sign up</string>
 
+    <string-array name="categories">
+        <item>Academics</item>
+        <item>Books</item>
+        <item>Electronics</item>
+        <item>Food</item>
+        <item>Mics</item>
+        <item>Movies</item>
+        <item>Nature</item>
+        <item>Shopping</item>
+        <item>Sports</item>
+    </string-array>
+
 </resources>
