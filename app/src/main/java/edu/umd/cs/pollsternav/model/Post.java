@@ -8,59 +8,90 @@ import edu.umd.cs.pollsternav.CategoriesFragment;
 
 public class Post {
 
-    private int pic1;
-    private int pic2;
-    private String user;
-    private CategoriesFragment.Categories category;
-    private int postID;
-    private int pic1Votes;
-    private int pic2Votes;
-    private String titleOfPost;
+    private String category;
+    private String pic1Uri;
+    private String pic2Uri;
+    private String title;
+    private String userId;
+    private String username;
+    private int votes1;
+    private int votes2;
 
-    public Post(String user, int pic1, int pic2, int pic1Votes, int pic2Votes, String titleOfPost, CategoriesFragment.Categories category) {
-        this.pic1 = pic1;
-        this.pic2 = pic2;
-        this.user = user;
-        this.category = category;
-        this.pic1Votes = pic1Votes;
-        this.pic2Votes = pic2Votes;
-        this.titleOfPost = titleOfPost;
+    public Post(String category, String pic1Uri, String pic2Uri, String title, String userId, String username, int votes1, int votes2) {
+        this.category  = category;
+        this.pic1Uri = pic1Uri;
+        this.pic2Uri = pic2Uri;
+        this.title = title;
+        this.userId = userId;
+        this.username = username;
+        this.votes1 = votes1;
+        this.votes2 = votes2;
     }
 
-    public CategoriesFragment.Categories getCategory() {
+    public Post() {}
+
+    public String getCategory() {
         return category;
     }
 
-    public int getPic1() {
-        return pic1;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
-    public int getPic2() {
-        return pic2;
+    public String getPic1Uri() {
+        return pic1Uri;
     }
 
-    public String getUser() {
-        return user;
+    public void setPic1Uri(String pic1Uri) {
+        this.pic1Uri = pic1Uri;
     }
 
-    public int getPostID() {
-        return postID;
+    public String getPic2Uri() {
+        return pic2Uri;
     }
 
-    public int getPic1Votes() {
-        return pic1Votes;
+    public void setPic2Uri(String pic2Uri) {
+        this.pic2Uri = pic2Uri;
     }
 
-    public int getPic2Votes() {
-        return pic2Votes;
+    public String getTitle() {
+        return title;
     }
 
-    public void setPic2Votes(int newVoteNum) { pic2Votes = newVoteNum;}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public void setPic1Votes(int newVoteNum) { pic1Votes = newVoteNum;}
+    public String getUserId() {
+        return userId;
+    }
 
-    public String getTitleOfPost() {
-        return titleOfPost;
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public int getVotes1() {
+        return votes1;
+    }
+
+    public void setVotes1(int votes1) {
+        this.votes1 = votes1;
+    }
+
+    public int getVotes2() {
+        return votes2;
+    }
+
+    public void setVotes2(int votes2) {
+        this.votes2 = votes2;
     }
 }
 
