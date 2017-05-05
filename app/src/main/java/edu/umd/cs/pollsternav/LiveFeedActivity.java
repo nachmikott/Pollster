@@ -178,6 +178,7 @@ public class LiveFeedActivity extends AppCompatActivity
             //TODO WE MAY NOT HAVE TO DO ANYTHING HERE.. PART OF FIREBASE IS THAT THE EVENTLISTENER
             // WILL BE CALLED THE MOMENT THE DB IS UPDATED, WHICH WILL CAUSE THE LIST TO BE RESTORED
             // AND CALLING SETFLIPPERCONTENT AGAIN
+
             //getPostList();
         }
     }
