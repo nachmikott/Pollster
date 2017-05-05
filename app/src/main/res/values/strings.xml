@@ -69,4 +69,6 @@
         <item>Sports</item>
     </string-array>
 
+    <string name="next">Next Post</string>
+
 </resources>

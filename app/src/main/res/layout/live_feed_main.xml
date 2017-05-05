@@ -27,6 +27,7 @@
         android:layout_height="match_parent">
     </ViewFlipper>
 
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_new_post"
         android:layout_width="wrap_content"
@@ -40,5 +41,13 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <Button
+        android:id="@+id/nextButton"
+        android:text="@string/next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"/>
+
 
 </android.support.design.widget.CoordinatorLayout>

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+
+import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Target;
 import android.app.ProgressDialog;
 import android.graphics.drawable.Drawable;
@@ -12,7 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.GestureDetectorCompat;
+import android.widget.Button;
 import android.widget.ViewFlipper;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -21,7 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.LayoutInflater;
 import android.widget.TextView;
-import com.google.firebase.database.Query;
+
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -64,7 +66,7 @@ public class LiveFeedActivity extends AppCompatActivity
     private Target loadtarget;
 
 
-    UserSpecificsService userSpecificsService;
+
     String username;
     public ViewFlipper liveFeedFlipper;
     public TextView postTitle;
@@ -87,7 +89,12 @@ public class LiveFeedActivity extends AppCompatActivity
         progress.show();
 
         // SQLite Service for maintaining specifications particularly for this user
-        userSpecificsService = DependencyFactory.getUserSpecificsService(getApplicationContext());
+        userSpecs = DependencyFactory.getUserSpecificsService(getApplicationContext());
+
+        // Get the posts list. This is done asynchronously.. so the entire project may
+        // start BEFORE the posts are put up. The intention of the progress dialog is to force the
+        // App to wait until all the posts are loaded.
+        getPostsFromFirebase();
 
         //Storage Reference for uploading and downloading photos for images
         fireBaseStorage = FirebaseStorage.getInstance().getReference();
@@ -101,14 +108,6 @@ public class LiveFeedActivity extends AppCompatActivity
         liveFeedFlipper.setInAnimation(this, android.R.anim.fade_in);
         liveFeedFlipper.setOutAnimation(this, android.R.anim.fade_out);
 
-        // Get user specifications service so we can access the category preferences later.
-        userSpecs = DependencyFactory.getUserSpecificsService(this.getBaseContext());
-
-        // Get the posts list. This is done asynchronously.. so the entire project may
-        // start BEFORE the posts are put up. The intention of the progress dialog is to force the
-        // App to wait until all the posts are loaded.
-        getPostList();
-
         //Floating Action Button for making a new post.
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.add_new_post);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +116,15 @@ public class LiveFeedActivity extends AppCompatActivity
                  //Go to the new post screen
                 Intent intent = new Intent(getBaseContext(), NewPostActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        Button nextButton = (Button) findViewById(R.id.nextButton);
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //THIS IS JUST FOR THE TIME BEING, WE WANT TO MOVE ONTO A NEXT POST BY A FLING THROUGH A GESTURE
+                liveFeedFlipper.showNext();
             }
         });
 
@@ -171,15 +179,15 @@ public class LiveFeedActivity extends AppCompatActivity
             if (data == null) {
                 return;
             }
-            //TODO We may have to do something slightly different here..
-            getPostList();
+            //TODO We may ha ve to do something slightly different here..
+            getPostsFromFirebase();
 
         } else if (requestCode == REQUEST_CODE_ADD_NEW_POST) {
             //TODO WE MAY NOT HAVE TO DO ANYTHING HERE.. PART OF FIREBASE IS THAT THE EVENTLISTENER
             // WILL BE CALLED THE MOMENT THE DB IS UPDATED, WHICH WILL CAUSE THE LIST TO BE RESTORED
             // AND CALLING SETFLIPPERCONTENT AGAIN
 
-            //getPostList();
+            //getPostsFromFirebase();
         }
     }
 
@@ -210,7 +218,7 @@ public class LiveFeedActivity extends AppCompatActivity
             //Signing the user out.
             FirebaseAuth.getInstance().signOut();
             Intent loginActivityIntent = new Intent(this, LoginActivity.class);
-            userSpecificsService.signOut();
+            userSpecs.signOut();
             startActivity(loginActivityIntent);
         }
 
@@ -220,13 +228,16 @@ public class LiveFeedActivity extends AppCompatActivity
         return true;
     }
 
-    // This is called by the 'getPostList()' method after having collected all the posts
+    // This is called by the 'getPostsFromFirebase()' method after having collected all the posts
     private void setFlipperContent(ArrayList<Post> postList) {
 
         // Traverse through each post
         for (int i = 0; i < postList.size(); i++) {
             LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View view = inflater.inflate(R.layout.live_post_layout, null);
+
+            //Storage Reference for the photos specifically.
+            StorageReference storageRefForUser = storage.getReference();
 
             final TextView image1Votes;
             final TextView image2Votes;
@@ -246,8 +257,17 @@ public class LiveFeedActivity extends AppCompatActivity
             voted1 = (ImageView) view.findViewById(R.id.voted_first);
             voted2 = (ImageView) view.findViewById(R.id.voted_second);
 
-            //Storage Reference for the photos specifically.
-            StorageReference storageRefForUser = storage.getReference();
+            //Setting the Title of the Post
+            postTitle = (TextView) view.findViewById(R.id.title_of_post);
+            postTitle.setText(postList.get(i).getTitle());
+
+            //Setting the votes for each image.
+            image1Votes = (TextView) view.findViewById(R.id.upVote_for_post_1);
+            image2Votes = (TextView) view.findViewById(R.id.upVote_for_post_2);
+            image1Votes.setText(String.valueOf(postList.get(i).getVotes1()));
+            image2Votes.setText(String.valueOf(postList.get(i).getVotes2()));
+
+
 
             /****  Now we load the actual image from Firebase *****/
 
@@ -298,17 +318,6 @@ public class LiveFeedActivity extends AppCompatActivity
             });
 
             /****/
-
-            //Setting the Title of the Post
-            postTitle = (TextView) view.findViewById(R.id.title_of_post);
-            postTitle.setText(postList.get(i).getTitle());
-
-            //Setting the votes for each image.
-            image1Votes = (TextView) view.findViewById(R.id.upVote_for_post_1);
-            image2Votes = (TextView) view.findViewById(R.id.upVote_for_post_2);
-            image1Votes.setText(String.valueOf(postList.get(i).getVotes1()));
-            image2Votes.setText(String.valueOf(postList.get(i).getVotes2()));
-
 
             //On Click Listeners For each image, When an image is clicked, its votes are incremented.
             image1.setOnClickListener(new View.OnClickListener() {
@@ -371,7 +380,6 @@ public class LiveFeedActivity extends AppCompatActivity
             });
         }
 
-
         // At this point we have loaded every post neccessary,
         // so we are ready to begin the user interactions.
         progress.dismiss();
@@ -405,32 +413,38 @@ public class LiveFeedActivity extends AppCompatActivity
 
     // Creates a list of posts from the Firebase Database (not the same as Storage!)
     // Once the list is completely created, setFlipperContent() is then called.
-    private void getPostList() {
+    private void getPostsFromFirebase() {
         final ArrayList<Post> postList = new ArrayList<Post>();
 
-        // Querying for all posts.
-        Query query = FirebaseDatabase.getInstance().getReference()
-                .child("posts")
-                .orderByChild("category");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReference = database.getReference();
+
+        // Before adding it to the list, a few conditions must be met.
+        final String userName = userSpecs.getUserName();
+        final List<CategoriesFragment.Categories> preferedCategories = userSpecs.getCategoryPreferences(userName);
+
 
         // This is Asynchronous!! It will pretty much run when it wants! (Which makes this a bit slow).
-        query.addValueEventListener(new ValueEventListener() {
+        databaseReference.child("posts").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
+                //Get all the children at this level
+                Iterable<DataSnapshot> posts = dataSnapshot.getChildren();
+
                     // Each entry in the DB is then changed into a post object
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        Post post = snapshot.getValue(Post.class);
+                for (DataSnapshot child : posts) {
+                    Post post = child.getValue(Post.class);
 
-                        // Before adding it to the list, a few conditions must be met.
-                        if(!userSpecs.getUserName().equals(post.getUsername())) // Only take in OTHER PEOPLES posts
-                            if(userSpecs.getCategoryPreferences(userSpecs.getUserName()) // Only Posts with the category that fits the users preferences.
-                                    .contains(CategoriesFragment.Categories.valueOf(post.getCategory())))
-                                postList.add(post);
-                    }
+                    CategoriesFragment.Categories categoryOfPost
+                            = CategoriesFragment.Categories.valueOf(post.getCategory().toUpperCase());
 
-                    setFlipperContent(postList);
+                    // Only take in OTHER PEOPLES posts of the RIGHT Categories
+                    if(!userName.equals(post.getUsername()) && preferedCategories.contains(categoryOfPost))
+                        postList.add(post);
                 }
+
+                // When were done going through all the posts.
+                setFlipperContent(postList);
             }
 
             @Override
