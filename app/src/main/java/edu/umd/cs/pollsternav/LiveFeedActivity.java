@@ -9,12 +9,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Target;
 import android.app.ProgressDialog;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.widget.Button;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -71,7 +76,7 @@ public class LiveFeedActivity extends AppCompatActivity
     public ViewFlipper liveFeedFlipper;
     public TextView postTitle;
     public UserSpecificsService userSpecs;
-    public String DEBUG_TAG = "GESTURE DETECTION";
+    public String DEBUG_TAG = "GESTURE";
     public List<Post> posts;
     private float initialX;
 
@@ -79,9 +84,51 @@ public class LiveFeedActivity extends AppCompatActivity
     private StorageReference fireBaseStorage;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //GESTURES TODO: This doesn't work yet
+        final GestureDetector gesture = new GestureDetector(this,
+                new GestureDetector.SimpleOnGestureListener() {
+
+                    @Override
+                    public boolean onDown(MotionEvent e) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                                           float velocityY) {
+                        Log.i(DEBUG_TAG, "onFling has been called!");
+                        final int SWIPE_MIN_DISTANCE = 120;
+                        final int SWIPE_MAX_OFF_PATH = 250;
+                        final int SWIPE_THRESHOLD_VELOCITY = 200;
+                        try {
+                            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                                return false;
+                            if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
+                                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                                Log.i(DEBUG_TAG, "Right to Left");
+                            } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
+                                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                                Log.i(DEBUG_TAG, "Left to Right");
+                            }
+                        } catch (Exception e) {
+                            // nothing
+                        }
+                        return super.onFling(e1, e2, velocityX, velocityY);
+                    }
+                });
+
+        this.findViewById(android.R.id.content).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gesture.onTouchEvent(event);
+            }
+        });
+
 
         // While the initial Posts are loading, a progress bar for loading will pop up.
         progress = new ProgressDialog(this);
@@ -137,7 +184,9 @@ public class LiveFeedActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
+
 
     @Override
     public void onBackPressed() {
@@ -147,6 +196,8 @@ public class LiveFeedActivity extends AppCompatActivity
         }
     }
 
+
+    /*
     public boolean onTouchEvent(MotionEvent touchevent) {
         switch (touchevent.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -167,7 +218,7 @@ public class LiveFeedActivity extends AppCompatActivity
                 break;
         }
         return false;
-    }
+    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -380,6 +431,7 @@ public class LiveFeedActivity extends AppCompatActivity
             });
         }
 
+
         // At this point we have loaded every post neccessary,
         // so we are ready to begin the user interactions.
         progress.dismiss();
@@ -453,4 +505,6 @@ public class LiveFeedActivity extends AppCompatActivity
             }
         });
     }
+
+
 }
