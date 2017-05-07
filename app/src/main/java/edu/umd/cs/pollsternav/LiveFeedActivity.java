@@ -2,6 +2,7 @@ package edu.umd.cs.pollsternav;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 
@@ -51,7 +52,8 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 public class LiveFeedActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements View.OnTouchListener,
+        NavigationView.OnNavigationItemSelectedListener {
     public int REQUEST_CODE_CHANGE_CATEGORIES = 1;
     private static final int REQUEST_CODE_ADD_NEW_POST = 2;
     private static final String EXTRA_POST_TITLE = "EXTRA_POST_TITLE";
@@ -83,51 +85,18 @@ public class LiveFeedActivity extends AppCompatActivity
     private ProgressDialog progress;
     private StorageReference fireBaseStorage;
 
+    //GESTURE DETECTION
+    int touchDownX;
+    int touchDownY;
+    long swipeDur;
+
+    public TextView swipe_instr;
+    public TextView add_instr;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //GESTURES TODO: This doesn't work yet
-        final GestureDetector gesture = new GestureDetector(this,
-                new GestureDetector.SimpleOnGestureListener() {
-
-                    @Override
-                    public boolean onDown(MotionEvent e) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-                                           float velocityY) {
-                        Log.i(DEBUG_TAG, "onFling has been called!");
-                        final int SWIPE_MIN_DISTANCE = 120;
-                        final int SWIPE_MAX_OFF_PATH = 250;
-                        final int SWIPE_THRESHOLD_VELOCITY = 200;
-                        try {
-                            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-                                return false;
-                            if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE
-                                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                                Log.i(DEBUG_TAG, "Right to Left");
-                            } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
-                                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                                Log.i(DEBUG_TAG, "Left to Right");
-                            }
-                        } catch (Exception e) {
-                            // nothing
-                        }
-                        return super.onFling(e1, e2, velocityX, velocityY);
-                    }
-                });
-
-        this.findViewById(android.R.id.content).setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gesture.onTouchEvent(event);
-            }
-        });
 
 
         // While the initial Posts are loading, a progress bar for loading will pop up.
@@ -166,14 +135,6 @@ public class LiveFeedActivity extends AppCompatActivity
             }
         });
 
-        Button nextButton = (Button) findViewById(R.id.nextButton);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //THIS IS JUST FOR THE TIME BEING, WE WANT TO MOVE ONTO A NEXT POST BY A FLING THROUGH A GESTURE
-                liveFeedFlipper.showNext();
-            }
-        });
 
         //Drawer Layout for other functions (logout, choose categories etc).
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -185,6 +146,12 @@ public class LiveFeedActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        liveFeedFlipper.setOnTouchListener(LiveFeedActivity.this);
+
+        swipe_instr = (TextView) findViewById(R.id.swipe_instructions);
+        add_instr = (TextView) findViewById(R.id.add_instructions);
+        swipe_instr.setTextColor(Color.parseColor("#6469AA"));
+        add_instr.setTextColor(Color.parseColor("#EFC270"));
     }
 
 
@@ -506,5 +473,30 @@ public class LiveFeedActivity extends AppCompatActivity
         });
     }
 
+
+
+    //Check to see if we swipe left (x of finger up is less than finger down within a short enough time)
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        int x = (int)motionEvent.getX();
+        int y = (int)motionEvent.getY();
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touchDownX = x;
+                touchDownY = y;
+                swipeDur = System.currentTimeMillis();
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+                Log.d("dur",""+(System.currentTimeMillis() - swipeDur));
+                if (System.currentTimeMillis() - swipeDur < 500 && x < touchDownX) {
+                    Toast.makeText(getBaseContext(), "Showing Next", Toast.LENGTH_SHORT).show();
+                    liveFeedFlipper.showNext();
+                }
+                break;
+        }
+        return true;
+    }
 
 }
