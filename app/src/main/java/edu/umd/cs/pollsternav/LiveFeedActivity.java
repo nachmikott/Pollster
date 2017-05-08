@@ -58,7 +58,8 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 public class LiveFeedActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        View.OnTouchListener {
     public int REQUEST_CODE_CHANGE_CATEGORIES = 1;
     private static final int REQUEST_CODE_ADD_NEW_POST = 2;
     private static final String EXTRA_POST_TITLE = "EXTRA_POST_TITLE";
