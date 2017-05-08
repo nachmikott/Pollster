@@ -92,7 +92,7 @@ public class LoginFragment extends Fragment {
                 if (cs.toString().matches(".")) {
                     return cs;
                 }
-                return "";
+                return cs;
             }
         };
 

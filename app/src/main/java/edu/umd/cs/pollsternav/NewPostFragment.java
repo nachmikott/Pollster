@@ -5,23 +5,32 @@ package edu.umd.cs.pollsternav;
  */
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MotionEventCompat;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,7 +56,12 @@ import static android.content.ContentValues.TAG;
     like Heroku or AWS or something.
 */
 
-public class NewPostFragment extends Fragment {
+public class NewPostFragment extends Fragment implements
+        GestureDetector.OnGestureListener,
+        GestureDetector.OnDoubleTapListener {
+
+
+    public String DEBUG_TAG = "GESTURE";
 
     private static final int REQUEST_PICTURE_1 = 1;
     private static final int REQUEST_PICTURE_2 = 2;
@@ -64,6 +78,14 @@ public class NewPostFragment extends Fragment {
     private EditText textTitle;
     private Spinner spinnerCategory;
     private String[] categories;
+
+    private ImageButton choose1;
+    private ImageButton choose2;
+
+    private TextView select1_text;
+    private TextView select2_text;
+
+    private Button saveBtn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,8 +111,10 @@ public class NewPostFragment extends Fragment {
         userSpecs = DependencyFactory.getUserSpecificsService(getActivity().getApplicationContext());
         categories = getResources().getStringArray(R.array.categories);
 
-        imageViewVote1 = (ImageView) view.findViewById(R.id.ivVote1);
-        imageViewVote2 = (ImageView) view.findViewById(R.id.ivVote2);
+        choose1 = (ImageButton) view.findViewById(R.id.choose1);
+        choose2 = (ImageButton) view.findViewById(R.id.choose2);
+
+
         textTitle = (EditText) view.findViewById(R.id.editText);
         spinnerCategory = (Spinner) view.findViewById(R.id.spinnerCategory);
         //AJAY - onClicked action when clickingon Button Save
@@ -99,41 +123,43 @@ public class NewPostFragment extends Fragment {
             public void onClick(View v) {
                 final String title = textTitle.getText().toString();
                 if (TextUtils.isEmpty(title)) {
-                    Toast.makeText(activity, "Title must not empty!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Title must not be empty!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (spinnerCategory.getSelectedItemPosition() == AdapterView.INVALID_POSITION) {
-                    Toast.makeText(activity, "You must select category!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "You must select a category!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (mImageForVote1Uri == null) {
-                    Toast.makeText(activity, "You must select photo for vote 1!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "You must select a photo for vote 1!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (mImageForVote2Uri == null) {
-                    Toast.makeText(activity, "You must select photo for vote 2!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "You must select a photo for vote 2!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (getFileNameFromMediaUri(mImageForVote1Uri) == null) {
-                    Toast.makeText(activity, "Wrong format for image vote 1. Please select another!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Wrong format for image vote 1. Please select another!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (getFileNameFromMediaUri(mImageForVote2Uri) == null) {
-                    Toast.makeText(activity, "Wrong format for image vote 2. Please select another!!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Wrong format for image vote 2. Please select another!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                ProgressDialog.show(activity, "Please wait", "Uploading your post...");
 
                 //AJAY - call this method to create and store a new post with selecting data when all conditions have passed
                 newPost(mImageForVote1Uri, mImageForVote2Uri, 0, 0, categories[spinnerCategory.getSelectedItemPosition()], title);
             }
         });
 
-        view.findViewById(R.id.picturesVote1).setOnClickListener(new View.OnClickListener() {
+        choose1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_PICK);
@@ -141,7 +167,7 @@ public class NewPostFragment extends Fragment {
                 startActivityForResult(intent, REQUEST_PICTURE_1);
             }
         });
-        view.findViewById(R.id.picturesVote2).setOnClickListener(new View.OnClickListener() {
+       choose2.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -150,6 +176,14 @@ public class NewPostFragment extends Fragment {
                 startActivityForResult(intent, REQUEST_PICTURE_2);
             }
         });
+
+        select1_text = (TextView) view.findViewById(R.id.select1_text);
+        select2_text = (TextView) view.findViewById(R.id.select2_text);
+        select1_text.setTextColor(Color.parseColor("#6469AA"));
+        select2_text.setTextColor(Color.parseColor("#6469AA"));
+
+        saveBtn = (Button) view.findViewById(R.id.button_save);
+        saveBtn.getBackground().setColorFilter(0xFFEFC270, PorterDuff.Mode.MULTIPLY);
     }
 
     @Override
@@ -161,12 +195,18 @@ public class NewPostFragment extends Fragment {
             Uri uri = data.getData();
             if (requestCode == REQUEST_PICTURE_1) {
                 mImageForVote1Uri = uri;
-                imageViewVote1.setImageURI(uri);
-                imageViewVote1.setVisibility(View.VISIBLE);
+                choose1.setImageURI(uri);
+                choose1.setAdjustViewBounds(true);
+                choose1.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                select1_text.setVisibility(View.INVISIBLE);
+                choose1.getBackground().setColorFilter(0x00979AC6, PorterDuff.Mode.MULTIPLY);
             } else if (requestCode == REQUEST_PICTURE_2) {
                 mImageForVote2Uri = uri;
-                imageViewVote2.setImageURI(uri);
-                imageViewVote2.setVisibility(View.VISIBLE);
+                choose2.setImageURI(uri);
+                choose2.setAdjustViewBounds(true);
+                choose2.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                choose2.getBackground().setColorFilter(0x00979AC6, PorterDuff.Mode.MULTIPLY);
+                select2_text.setVisibility(View.INVISIBLE);
             }
         }
 //
@@ -291,6 +331,95 @@ public class NewPostFragment extends Fragment {
 
         return fileName;
     }
+
+
+
+    //EVERYTHING BELOW IS FOR GESTURES
+
+
+    @Override
+    public boolean onDown(MotionEvent event) {
+        Toast.makeText(activity,"Down",
+                Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    @Override
+    public boolean onFling(MotionEvent event1, MotionEvent event2,
+                           float velocityX, float velocityY) {
+        Toast.makeText(activity,"Fling",
+                Toast.LENGTH_SHORT).show();
+        return true;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent event) {
+        Log.d(DEBUG_TAG, "onLongPress: " + event.toString());
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+                            float distanceY) {
+        Log.d(DEBUG_TAG, "onScroll: " + e1.toString()+e2.toString());
+        return true;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent event) {
+        Log.d(DEBUG_TAG, "onShowPress: " + event.toString());
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent event) {
+        Log.d(DEBUG_TAG, "onSingleTapUp: " + event.toString());
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent event) {
+        Log.d(DEBUG_TAG, "onDoubleTap: " + event.toString());
+        return true;
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent event) {
+        Log.d(DEBUG_TAG, "onDoubleTapEvent: " + event.toString());
+        return true;
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent event) {
+        Log.d(DEBUG_TAG, "onSingleTapConfirmed: " + event.toString());
+        return true;
+    }
+
+
+    public boolean onTouchEvent(MotionEvent event){
+
+        int action = MotionEventCompat.getActionMasked(event);
+
+        switch(action) {
+            case (MotionEvent.ACTION_DOWN) :
+                Log.d(DEBUG_TAG,"Action was DOWN");
+                return true;
+            case (MotionEvent.ACTION_MOVE) :
+                Log.d(DEBUG_TAG,"Action was MOVE");
+                return true;
+            case (MotionEvent.ACTION_UP) :
+                Log.d(DEBUG_TAG,"Action was UP");
+                return true;
+            case (MotionEvent.ACTION_CANCEL) :
+                Log.d(DEBUG_TAG,"Action was CANCEL");
+                return true;
+            case (MotionEvent.ACTION_OUTSIDE) :
+                Log.d(DEBUG_TAG,"Movement occurred outside bounds " +
+                        "of current screen element");
+                return true;
+            default :
+                return activity.onTouchEvent(event);
+        }
+    }
+
 }
 
 

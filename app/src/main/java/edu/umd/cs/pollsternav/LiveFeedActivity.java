@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.Image;
 import android.opengl.Visibility;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 
@@ -11,12 +12,17 @@ import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Target;
 import android.app.ProgressDialog;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.widget.Button;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -86,6 +92,14 @@ public class LiveFeedActivity extends AppCompatActivity
     private ProgressDialog progress;
     private StorageReference fireBaseStorage;
     private DatabaseReference firesBaseDatabase;
+
+    //GESTURE DETECTION
+    int touchDownX;
+    int touchDownY;
+    long swipeDur;
+
+    public TextView swipe_instr;
+    public TextView add_instr;
 
 
     @Override
@@ -187,7 +201,15 @@ public class LiveFeedActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        liveFeedFlipper.setOnTouchListener(LiveFeedActivity.this);
+
+        swipe_instr = (TextView) findViewById(R.id.swipe_instructions);
+        add_instr = (TextView) findViewById(R.id.add_instructions);
+        swipe_instr.setTextColor(Color.parseColor("#6469AA"));
+        add_instr.setTextColor(Color.parseColor("#EFC270"));
     }
+
 
     @Override
     public void onBackPressed() {
@@ -195,28 +217,6 @@ public class LiveFeedActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         }
-    }
-
-    public boolean onTouchEvent(MotionEvent touchevent) {
-        switch (touchevent.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                initialX = touchevent.getX();
-                break;
-            case MotionEvent.ACTION_UP:
-                float finalX = touchevent.getX();
-                if (initialX > finalX) {
-                    if (liveFeedFlipper.getDisplayedChild() == 1)
-                        break;
-
-                    liveFeedFlipper.showNext();
-                } else {
-                    if (liveFeedFlipper.getDisplayedChild() == 0)
-                        break;
-                    liveFeedFlipper.showPrevious();
-                }
-                break;
-        }
-        return false;
     }
 
     @Override
@@ -229,7 +229,7 @@ public class LiveFeedActivity extends AppCompatActivity
             if (data == null) {
                 return;
             }
-            //TODO We may have to do something slightly different here..
+            //TODO We may ha ve to do something slightly different here..
             getPostsFromFirebase();
 
         } else if (requestCode == REQUEST_CODE_ADD_NEW_POST) {
@@ -240,6 +240,7 @@ public class LiveFeedActivity extends AppCompatActivity
             //getPostsFromFirebase();
         }
     }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -279,7 +280,6 @@ public class LiveFeedActivity extends AppCompatActivity
 
     // This is called by the 'getPostsFromFirebase()' method after having collected all the posts
     private void setFlipperContent(ArrayList<Post> postList) {
-        postsInViewFlipper = new ArrayList<Post>();
 
         // Traverse through each post
         for (int i = 0; i < postList.size(); i++) {
@@ -298,7 +298,6 @@ public class LiveFeedActivity extends AppCompatActivity
 
             // Add the view to the liveFeedFlipper.
             liveFeedFlipper.addView(view);
-            postsInViewFlipper.add(postList.get(i));
 
             //Fill in the ImageViews with the actual thumbnail of this picture.
             image1 = (ImageView) view.findViewById(R.id.first_image);
@@ -317,6 +316,8 @@ public class LiveFeedActivity extends AppCompatActivity
             image2Votes = (TextView) view.findViewById(R.id.upVote_for_post_2);
             image1Votes.setText(String.valueOf(postList.get(i).getVotes1()));
             image2Votes.setText(String.valueOf(postList.get(i).getVotes2()));
+
+
 
             /****  Now we load the actual image from Firebase *****/
 
@@ -506,4 +507,31 @@ public class LiveFeedActivity extends AppCompatActivity
             }
         });
     }
+
+
+
+    //Check to see if we swipe left (x of finger up is less than finger down within a short enough time)
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        int x = (int)motionEvent.getX();
+        int y = (int)motionEvent.getY();
+        switch (motionEvent.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touchDownX = x;
+                touchDownY = y;
+                swipeDur = System.currentTimeMillis();
+                break;
+
+            case MotionEvent.ACTION_UP:
+
+                Log.d("dur",""+(System.currentTimeMillis() - swipeDur));
+                if (System.currentTimeMillis() - swipeDur < 500 && x < touchDownX) {
+                    Toast.makeText(getBaseContext(), "Showing Next", Toast.LENGTH_SHORT).show();
+                    liveFeedFlipper.showNext();
+                }
+                break;
+        }
+        return true;
+    }
+
 }

@@ -12,14 +12,6 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
-    signingConfigs {
-        debug {
-            storeFile rootProject.file('config/debug.keystore')
-            storePassword
-            keyAlias 'androiddebugkey'
-            keyPassword
-        }
-    }
     buildTypes {
         debug {
             minifyEnabled false

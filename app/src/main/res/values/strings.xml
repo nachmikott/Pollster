@@ -58,6 +58,7 @@
     <string name="signup_button_text">Sign up</string>
 
     <string-array name="categories">
+        <item>Misc</item>
         <item>Academics</item>
         <item>Books</item>
         <item>Electronics</item>
@@ -71,4 +72,10 @@
 
     <string name="next">Next Post</string>
     <string name="no_more_posts">Oh, no! You\'ve seen all of your friend\'s posts, try back again later!</string>
+
+    <string name="selImg1">Select Image 1 below</string>
+    <string name="selImg2">Select Image 2 below</string>
+    <string name="saveNewPost">Post it!</string>
+
+
 </resources>
