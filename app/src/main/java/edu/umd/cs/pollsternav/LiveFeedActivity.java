@@ -2,6 +2,8 @@ package edu.umd.cs.pollsternav;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.Image;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 
@@ -23,6 +25,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.LayoutInflater;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.text.TextUtils;
+import java.util.Map;
+import java.util.HashMap;
 
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -60,7 +66,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
 
 
-    private int numberOfPost = 0;
+    private List<Post> postsInViewFlipper;
 
     // make sure to set Target as strong reference
     private Target loadtarget;
@@ -75,8 +81,11 @@ public class LiveFeedActivity extends AppCompatActivity
     public List<Post> posts;
     private float initialX;
 
+    private HashMap<String, String> postTitleToFirebaseIdName;
+
     private ProgressDialog progress;
     private StorageReference fireBaseStorage;
+    private DatabaseReference firesBaseDatabase;
 
 
     @Override
@@ -91,13 +100,18 @@ public class LiveFeedActivity extends AppCompatActivity
         // SQLite Service for maintaining specifications particularly for this user
         userSpecs = DependencyFactory.getUserSpecificsService(getApplicationContext());
 
+
+        //Create the HashMap for obtaining the name of the post (in firebase)
+        postTitleToFirebaseIdName = new HashMap<>();
+
         // Get the posts list. This is done asynchronously.. so the entire project may
         // start BEFORE the posts are put up. The intention of the progress dialog is to force the
         // App to wait until all the posts are loaded.
         getPostsFromFirebase();
 
-        //Storage Reference for uploading and downloading photos for images
+        //Storage Reference and Databse Reference for uploading and downloading photos for images
         fireBaseStorage = FirebaseStorage.getInstance().getReference();
+        firesBaseDatabase = FirebaseDatabase.getInstance().getReference();
 
         setContentView(R.layout.activity_live_feed);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -124,7 +138,43 @@ public class LiveFeedActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 //THIS IS JUST FOR THE TIME BEING, WE WANT TO MOVE ONTO A NEXT POST BY A FLING THROUGH A GESTURE
-                liveFeedFlipper.showNext();
+                if(liveFeedFlipper.getDisplayedChild() != liveFeedFlipper.getChildCount()) {
+                    try {
+                        //Getting the Votes of each image
+                        TextView textViewVote1 = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.upVote_for_post_1);
+                        TextView textViewVote2 = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.upVote_for_post_2);
+                        int vote1 = Integer.parseInt(textViewVote1.getText().toString());
+                        int vote2 = Integer.parseInt(textViewVote2.getText().toString());
+
+                        //Determining which one was voted on last
+                        ImageView votedFirst = (ImageView) liveFeedFlipper.getCurrentView().findViewById(R.id.voted_first);
+                        ImageView votedSecond = (ImageView) liveFeedFlipper.getCurrentView().findViewById(R.id.voted_second);
+
+                        //Getting actual Post object corresponding to current view
+                        Post post = postsInViewFlipper.get(liveFeedFlipper.getDisplayedChild());
+
+                        String keyValueFromFirebase = postTitleToFirebaseIdName.get(post.getTitle());
+
+                        if(votedFirst.getVisibility() == View.VISIBLE) { //Means that the user voted for the first Image
+                            System.out.println("USER VOTED FOR FIRST IMAGE. SO WE WILL UPDATE THAT VOTE");
+                            firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes1").setValue(vote1);
+                        } else if (votedSecond.getVisibility() == View.VISIBLE) {
+                            System.out.println("USER VOTED FOR SECOND IMAGE. SO WE WILL UPDATE THAT VOTE");
+                            firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes2").setValue(vote2);
+                        } else {
+                            //THE USER DIDN'T VOTE FOR ANYTHING SO WE WON"T DO ANYTHING
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Something went wrong!");
+                    }
+
+                    //TODO: HERE WE MUST CHECK IF THE USER HAS GONE THROUGH ALL THE POSTS HE CAN POSSIBLY GO THROUGH (YOU DON"T WANT TO GO BACK TO THE BEGINNING)
+                    //WE WILL HAVE TO DISPLAY "SORRY, NO MORE POSTS FOR NOW, TRY CHANGING YOUR CATEGORY PREFERENCES, OR TRY AGAIN LATER, WHEN MORE FRIENDS POST!
+                    liveFeedFlipper.showNext();
+                } else {
+                    TextView ending = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.no_more_posts);
+                    ending.setVisibility(View.VISIBLE);
+                }
             }
         });
 
@@ -179,7 +229,7 @@ public class LiveFeedActivity extends AppCompatActivity
             if (data == null) {
                 return;
             }
-            //TODO We may ha ve to do something slightly different here..
+            //TODO We may have to do something slightly different here..
             getPostsFromFirebase();
 
         } else if (requestCode == REQUEST_CODE_ADD_NEW_POST) {
@@ -190,7 +240,6 @@ public class LiveFeedActivity extends AppCompatActivity
             //getPostsFromFirebase();
         }
     }
-
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -230,6 +279,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
     // This is called by the 'getPostsFromFirebase()' method after having collected all the posts
     private void setFlipperContent(ArrayList<Post> postList) {
+        postsInViewFlipper = new ArrayList<Post>();
 
         // Traverse through each post
         for (int i = 0; i < postList.size(); i++) {
@@ -248,6 +298,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
             // Add the view to the liveFeedFlipper.
             liveFeedFlipper.addView(view);
+            postsInViewFlipper.add(postList.get(i));
 
             //Fill in the ImageViews with the actual thumbnail of this picture.
             image1 = (ImageView) view.findViewById(R.id.first_image);
@@ -266,8 +317,6 @@ public class LiveFeedActivity extends AppCompatActivity
             image2Votes = (TextView) view.findViewById(R.id.upVote_for_post_2);
             image1Votes.setText(String.valueOf(postList.get(i).getVotes1()));
             image2Votes.setText(String.valueOf(postList.get(i).getVotes2()));
-
-
 
             /****  Now we load the actual image from Firebase *****/
 
@@ -441,6 +490,10 @@ public class LiveFeedActivity extends AppCompatActivity
                     // Only take in OTHER PEOPLES posts of the RIGHT Categories
                     if(!userName.equals(post.getUsername()) && preferedCategories.contains(categoryOfPost))
                         postList.add(post);
+                        //Add the title and the actual name
+                        String value = child.getKey().toString();
+
+                        postTitleToFirebaseIdName.put(post.getTitle(), value);
                 }
 
                 // When were done going through all the posts.

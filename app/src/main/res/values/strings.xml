@@ -70,5 +70,5 @@
     </string-array>
 
     <string name="next">Next Post</string>
-
+    <string name="no_more_posts">Oh, no! You\'ve seen all of your friend\'s posts, try back again later!</string>
 </resources>
