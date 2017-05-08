@@ -1,6 +1,7 @@
 package edu.umd.cs.pollsternav;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Image;
 import android.opengl.Visibility;
@@ -14,6 +15,7 @@ import android.app.ProgressDialog;
 import android.graphics.drawable.Drawable;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -58,8 +60,7 @@ import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 public class LiveFeedActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        View.OnTouchListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnTouchListener {
     public int REQUEST_CODE_CHANGE_CATEGORIES = 1;
     private static final int REQUEST_CODE_ADD_NEW_POST = 2;
     private static final String EXTRA_POST_TITLE = "EXTRA_POST_TITLE";
@@ -98,10 +99,6 @@ public class LiveFeedActivity extends AppCompatActivity
     int touchDownX;
     int touchDownY;
     long swipeDur;
-
-    public TextView swipe_instr;
-    public TextView add_instr;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,10 +202,8 @@ public class LiveFeedActivity extends AppCompatActivity
 
         liveFeedFlipper.setOnTouchListener(LiveFeedActivity.this);
 
-        swipe_instr = (TextView) findViewById(R.id.swipe_instructions);
-        add_instr = (TextView) findViewById(R.id.add_instructions);
-        swipe_instr.setTextColor(Color.parseColor("#6469AA"));
-        add_instr.setTextColor(Color.parseColor("#EFC270"));
+        //Pop-up for instructions
+        showSwipeInstructions();
     }
 
 
@@ -279,8 +274,30 @@ public class LiveFeedActivity extends AppCompatActivity
         return true;
     }
 
+    public void showSwipeInstructions() {
+        //Show the alert dialog to the user
+
+        ImageView iv = new ImageView(this);
+        iv.setImageResource(R.drawable.swipe_left);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Swipe to see next")
+                .setMessage("Swipe left to see the next post")
+                .setView(iv)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                        //Nothing
+                    }
+                })
+                .setCancelable(false)
+                .show();
+    }
+
     // This is called by the 'getPostsFromFirebase()' method after having collected all the posts
     private void setFlipperContent(ArrayList<Post> postList) {
+        postsInViewFlipper = new ArrayList<>();
+
+        liveFeedFlipper.removeAllViews();
 
         // Traverse through each post
         for (int i = 0; i < postList.size(); i++) {
@@ -299,6 +316,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
             // Add the view to the liveFeedFlipper.
             liveFeedFlipper.addView(view);
+            postsInViewFlipper.add(postList.get(i));
 
             //Fill in the ImageViews with the actual thumbnail of this picture.
             image1 = (ImageView) view.findViewById(R.id.first_image);
@@ -479,6 +497,8 @@ public class LiveFeedActivity extends AppCompatActivity
         databaseReference.child("posts").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                postList.removeAll(postList);
+
                 //Get all the children at this level
                 Iterable<DataSnapshot> posts = dataSnapshot.getChildren();
 
@@ -490,12 +510,13 @@ public class LiveFeedActivity extends AppCompatActivity
                             = CategoriesFragment.Categories.valueOf(post.getCategory().toUpperCase());
 
                     // Only take in OTHER PEOPLES posts of the RIGHT Categories
-                    if(!userName.equals(post.getUsername()) && preferedCategories.contains(categoryOfPost))
+                    if(!userName.equals(post.getUsername()) && preferedCategories.contains(categoryOfPost)) {
                         postList.add(post);
                         //Add the title and the actual name
                         String value = child.getKey().toString();
 
                         postTitleToFirebaseIdName.put(post.getTitle(), value);
+                    }
                 }
 
                 // When were done going through all the posts.
@@ -527,8 +548,44 @@ public class LiveFeedActivity extends AppCompatActivity
 
                 Log.d("dur",""+(System.currentTimeMillis() - swipeDur));
                 if (System.currentTimeMillis() - swipeDur < 500 && x < touchDownX) {
-                    Toast.makeText(getBaseContext(), "Showing Next", Toast.LENGTH_SHORT).show();
-                    liveFeedFlipper.showNext();
+                    //THIS IS JUST FOR THE TIME BEING, WE WANT TO MOVE ONTO A NEXT POST BY A FLING THROUGH A GESTURE
+                    if(liveFeedFlipper.getDisplayedChild() != liveFeedFlipper.getChildCount()) {
+                        try {
+                            //Getting the Votes of each image
+                            TextView textViewVote1 = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.upVote_for_post_1);
+                            TextView textViewVote2 = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.upVote_for_post_2);
+                            int vote1 = Integer.parseInt(textViewVote1.getText().toString());
+                            int vote2 = Integer.parseInt(textViewVote2.getText().toString());
+
+                            //Determining which one was voted on last
+                            ImageView votedFirst = (ImageView) liveFeedFlipper.getCurrentView().findViewById(R.id.voted_first);
+                            ImageView votedSecond = (ImageView) liveFeedFlipper.getCurrentView().findViewById(R.id.voted_second);
+
+                            //Getting actual Post object corresponding to current view
+                            Post post = postsInViewFlipper.get(liveFeedFlipper.getDisplayedChild());
+
+                            String keyValueFromFirebase = postTitleToFirebaseIdName.get(post.getTitle());
+
+                            if(votedFirst.getVisibility() == View.VISIBLE) { //Means that the user voted for the first Image
+                                System.out.println("USER VOTED FOR FIRST IMAGE. SO WE WILL UPDATE THAT VOTE");
+                                firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes1").setValue(vote1);
+                            } else if (votedSecond.getVisibility() == View.VISIBLE) {
+                                System.out.println("USER VOTED FOR SECOND IMAGE. SO WE WILL UPDATE THAT VOTE");
+                                firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes2").setValue(vote2);
+                            } else {
+                                //THE USER DIDN'T VOTE FOR ANYTHING SO WE WON"T DO ANYTHING
+                            }
+                        } catch (Exception e) {
+                            System.out.println("Something went wrong!");
+                        }
+
+                        //TODO: HERE WE MUST CHECK IF THE USER HAS GONE THROUGH ALL THE POSTS HE CAN POSSIBLY GO THROUGH (YOU DON"T WANT TO GO BACK TO THE BEGINNING)
+                        //WE WILL HAVE TO DISPLAY "SORRY, NO MORE POSTS FOR NOW, TRY CHANGING YOUR CATEGORY PREFERENCES, OR TRY AGAIN LATER, WHEN MORE FRIENDS POST!
+                        liveFeedFlipper.showNext();
+                    } else {
+                        TextView ending = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.no_more_posts);
+                        ending.setVisibility(View.VISIBLE);
+                    }
                 }
                 break;
         }

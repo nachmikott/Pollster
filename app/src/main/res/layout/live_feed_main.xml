@@ -7,21 +7,26 @@
     android:fitsSystemWindows="true"
     tools:context="edu.umd.cs.pollsternav.LiveFeedActivity">
 
-
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
     </android.support.design.widget.AppBarLayout>
 
+    <ViewFlipper
+        android:id="@+id/viewFlipperForPosts"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </ViewFlipper>
 
-    <TextView
-        android:text="Click to create post  "
-        android:layout_width="wrap_content"
-        android:layout_height="120dp"
-        android:id="@+id/add_instructions"
-        android:layout_gravity="bottom|right"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_new_post"
@@ -37,26 +42,11 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
-    <TextView
-        android:text="  Swipe to see next"
+    <Button
+        android:id="@+id/nextButton"
         android:layout_width="wrap_content"
-        android:layout_height="120dp"
-        android:id="@+id/swipe_instructions"
-        android:layout_gravity="bottom|left"/>
-
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        app:srcCompat="@drawable/swipe_left"
-        android:id="@+id/swipeImage"
-        android:layout_gravity="bottom|left" />
-
-    <ViewFlipper
-        android:id="@+id/viewFlipperForPosts"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </ViewFlipper>
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"/>
 
 
 </android.support.design.widget.CoordinatorLayout>
