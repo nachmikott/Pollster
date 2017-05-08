@@ -145,51 +145,6 @@ public class LiveFeedActivity extends AppCompatActivity
             }
         });
 
-        Button nextButton = (Button) findViewById(R.id.nextButton);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //THIS IS JUST FOR THE TIME BEING, WE WANT TO MOVE ONTO A NEXT POST BY A FLING THROUGH A GESTURE
-                if(liveFeedFlipper.getDisplayedChild() != liveFeedFlipper.getChildCount()) {
-                    try {
-                        //Getting the Votes of each image
-                        TextView textViewVote1 = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.upVote_for_post_1);
-                        TextView textViewVote2 = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.upVote_for_post_2);
-                        int vote1 = Integer.parseInt(textViewVote1.getText().toString());
-                        int vote2 = Integer.parseInt(textViewVote2.getText().toString());
-
-                        //Determining which one was voted on last
-                        ImageView votedFirst = (ImageView) liveFeedFlipper.getCurrentView().findViewById(R.id.voted_first);
-                        ImageView votedSecond = (ImageView) liveFeedFlipper.getCurrentView().findViewById(R.id.voted_second);
-
-                        //Getting actual Post object corresponding to current view
-                        Post post = postsInViewFlipper.get(liveFeedFlipper.getDisplayedChild());
-
-                        String keyValueFromFirebase = postTitleToFirebaseIdName.get(post.getTitle());
-
-                        if(votedFirst.getVisibility() == View.VISIBLE) { //Means that the user voted for the first Image
-                            System.out.println("USER VOTED FOR FIRST IMAGE. SO WE WILL UPDATE THAT VOTE");
-                            firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes1").setValue(vote1);
-                        } else if (votedSecond.getVisibility() == View.VISIBLE) {
-                            System.out.println("USER VOTED FOR SECOND IMAGE. SO WE WILL UPDATE THAT VOTE");
-                            firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes2").setValue(vote2);
-                        } else {
-                            //THE USER DIDN'T VOTE FOR ANYTHING SO WE WON"T DO ANYTHING
-                        }
-                    } catch (Exception e) {
-                        System.out.println("Something went wrong!");
-                    }
-
-                    //TODO: HERE WE MUST CHECK IF THE USER HAS GONE THROUGH ALL THE POSTS HE CAN POSSIBLY GO THROUGH (YOU DON"T WANT TO GO BACK TO THE BEGINNING)
-                    //WE WILL HAVE TO DISPLAY "SORRY, NO MORE POSTS FOR NOW, TRY CHANGING YOUR CATEGORY PREFERENCES, OR TRY AGAIN LATER, WHEN MORE FRIENDS POST!
-                    liveFeedFlipper.showNext();
-                } else {
-                    TextView ending = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.no_more_posts);
-                    ending.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
         //Drawer Layout for other functions (logout, choose categories etc).
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -225,15 +180,14 @@ public class LiveFeedActivity extends AppCompatActivity
             if (data == null) {
                 return;
             }
-            //TODO We may ha ve to do something slightly different here..
+            //Recall the getPostsFromFirebase, now that we've changed our preferences for the user.
             getPostsFromFirebase();
 
         } else if (requestCode == REQUEST_CODE_ADD_NEW_POST) {
-            //TODO WE MAY NOT HAVE TO DO ANYTHING HERE.. PART OF FIREBASE IS THAT THE EVENTLISTENER
+
             // WILL BE CALLED THE MOMENT THE DB IS UPDATED, WHICH WILL CAUSE THE LIST TO BE RESTORED
             // AND CALLING SETFLIPPERCONTENT AGAIN
-
-            //getPostsFromFirebase();
+            getPostsFromFirebase();
         }
     }
 
@@ -549,7 +503,6 @@ public class LiveFeedActivity extends AppCompatActivity
                 Log.d("dur",""+(System.currentTimeMillis() - swipeDur));
                 if (System.currentTimeMillis() - swipeDur < 500 && x < touchDownX) {
                     //THIS IS JUST FOR THE TIME BEING, WE WANT TO MOVE ONTO A NEXT POST BY A FLING THROUGH A GESTURE
-                    if(liveFeedFlipper.getDisplayedChild() != liveFeedFlipper.getChildCount()) {
                         try {
                             //Getting the Votes of each image
                             TextView textViewVote1 = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.upVote_for_post_1);
@@ -575,17 +528,22 @@ public class LiveFeedActivity extends AppCompatActivity
                             } else {
                                 //THE USER DIDN'T VOTE FOR ANYTHING SO WE WON"T DO ANYTHING
                             }
+
+                            if(liveFeedFlipper.getDisplayedChild() != liveFeedFlipper.getChildCount()) {
+                                TextView ending = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.no_more_posts);
+                                ending.setVisibility(View.VISIBLE);
+                            } else {
+                                //TODO: HERE WE MUST CHECK IF THE USER HAS GONE THROUGH ALL THE POSTS HE CAN POSSIBLY GO THROUGH (YOU DON"T WANT TO GO BACK TO THE BEGINNING)
+                                //WE WILL HAVE TO DISPLAY "SORRY, NO MORE POSTS FOR NOW, TRY CHANGING YOUR CATEGORY PREFERENCES, OR TRY AGAIN LATER, WHEN MORE FRIENDS POST!
+
+                                liveFeedFlipper.showNext();
+                            }
+
+
                         } catch (Exception e) {
                             System.out.println("Something went wrong!");
                         }
 
-                        //TODO: HERE WE MUST CHECK IF THE USER HAS GONE THROUGH ALL THE POSTS HE CAN POSSIBLY GO THROUGH (YOU DON"T WANT TO GO BACK TO THE BEGINNING)
-                        //WE WILL HAVE TO DISPLAY "SORRY, NO MORE POSTS FOR NOW, TRY CHANGING YOUR CATEGORY PREFERENCES, OR TRY AGAIN LATER, WHEN MORE FRIENDS POST!
-                        liveFeedFlipper.showNext();
-                    } else {
-                        TextView ending = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.no_more_posts);
-                        ending.setVisibility(View.VISIBLE);
-                    }
                 }
                 break;
         }
