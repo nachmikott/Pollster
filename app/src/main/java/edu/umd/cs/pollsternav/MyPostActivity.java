@@ -8,8 +8,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-public class MyPostActivity extends AppCompatActivity {
+public class MyPostActivity extends SingleFragmentActivity {
 
+
+    @Override
+    protected Fragment createFragment() {
+        return MyPostFragment.newInstance();
+    }
+    /*
     public static Intent newIntent(Context context) {
         Intent intent = new Intent(context, MyPostActivity.class);
         return intent;
@@ -32,5 +38,6 @@ public class MyPostActivity extends AppCompatActivity {
                     .add(R.id.fragment_container, fragment)
                     .commit();
         }
-    }
+    }*/
 }
+

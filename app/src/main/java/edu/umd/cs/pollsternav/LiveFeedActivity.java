@@ -71,7 +71,7 @@ public class LiveFeedActivity extends AppCompatActivity
     private static final String EXTRA_VOTES_2 = "EXTRA_VOTES_2";
     private DrawerLayout drawer;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
-
+    private TextView userName;
 
 
     private List<Post> postsInViewFlipper;
@@ -150,12 +150,19 @@ public class LiveFeedActivity extends AppCompatActivity
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.open, R.string.close);
         drawer.addDrawerListener(toggle);
+
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         liveFeedFlipper.setOnTouchListener(LiveFeedActivity.this);
+
+        View navHeader =  navigationView.getHeaderView(0);
+        TextView nav_user = (TextView) navHeader.findViewById(R.id.username_text);
+        String userName = userSpecs.getUserName();
+
+        nav_user.setText(userName);
 
         //Pop-up for instructions
         showSwipeInstructions();
