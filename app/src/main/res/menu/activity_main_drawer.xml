@@ -18,6 +18,6 @@
         android:icon="@mipmap/ic_settings_black_24dp"/>
     <item android:id="@+id/log_out"
         android:title="@string/log_out"
-        android:icon="@mipmap/logout"/>
+        android:icon="@drawable/ic_logout_24dp"/>
 
 </menu>

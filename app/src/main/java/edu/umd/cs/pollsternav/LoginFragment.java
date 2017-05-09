@@ -334,8 +334,8 @@ public class LoginFragment extends Fragment {
         if (TextUtils.isEmpty(user)) {
             return;
         }
-        Toast.makeText(getActivity(), "Starting the feed activity for user: " + user,
-                Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "Starting the feed activity for user: " + user,
+//                Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(activity, LiveFeedActivity.class);
         intent.putExtra("USER", user);

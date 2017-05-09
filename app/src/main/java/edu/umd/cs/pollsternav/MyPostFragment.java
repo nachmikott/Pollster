@@ -168,7 +168,7 @@ public class MyPostFragment extends Fragment {
         for(int i=0;i<my_posts.size();i++){
             HashMap<String, String> hm = new HashMap<String,String>();
             hm.put("flag", Integer.toString(flags[0]) );
-            hm.put("txt", "Title: "+my_posts.get(i).getTitle()+"\nVotes for pic1: "+my_posts.get(i).getVotes1()+"\nVotes for pic 2: "+my_posts.get(i).getVotes2());
+            hm.put("txt", "Title: "+my_posts.get(i).getTitle()+"\nVotes for 1st Picture: "+my_posts.get(i).getVotes1()+"\nVotes for 2nd Picture: "+my_posts.get(i).getVotes2());
             aList.add(hm);
         }
 

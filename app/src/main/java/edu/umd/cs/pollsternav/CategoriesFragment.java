@@ -112,6 +112,8 @@ public class CategoriesFragment extends Fragment {
                 shopping_checkbox.setChecked(true);
             } else if (category == Categories.SPORTS) {
                 sports_checkbox.setChecked(true);
+            } else if (category == Categories.NATURE) {
+                nature_checkbox.setChecked(true);
             }
         }
 

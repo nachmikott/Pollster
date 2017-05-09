@@ -3,6 +3,7 @@ package edu.umd.cs.pollsternav;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.media.Image;
 import android.opengl.Visibility;
 import android.graphics.PorterDuff;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 import android.support.v4.widget.DrawerLayout;
@@ -255,7 +257,7 @@ public class LiveFeedActivity extends AppCompatActivity
     }
 
     // This is called by the 'getPostsFromFirebase()' method after having collected all the posts
-    private void setFlipperContent(ArrayList<Post> postList) {
+    private void setFlipperContent(final ArrayList<Post> postList) {
         postsInViewFlipper = new ArrayList<>();
 
         liveFeedFlipper.removeAllViews();
@@ -354,15 +356,17 @@ public class LiveFeedActivity extends AppCompatActivity
                 @Override
                 public void onClick(View v) {
                     if(voted1.getVisibility() != View.VISIBLE) { // User votes once.
-                        voted1.setVisibility(View.VISIBLE);
+                        //voted1.setVisibility(View.VISIBLE);
 
                         Integer newVote = Integer.parseInt(image1Votes.getText().toString()) + 1;
+                        Integer otherVote = Integer.parseInt(image2Votes.getText().toString());
+
                         image1Votes.setText(newVote.toString());
 
                         image1.setColorFilter(Color.argb(150,200,200,200));
 
-                        if(voted2.getVisibility() == View.VISIBLE) { // Switch from vote2 to vote1
-                            voted2.setVisibility(View.INVISIBLE);
+                        if(otherVote != postsInViewFlipper.get(postsInViewFlipper.size()-1).getVotes2()) { // Switch from vote2 to vote1
+                            //voted2.setVisibility(View.INVISIBLE);
 
                             image2.setColorFilter(null);
 
@@ -370,7 +374,7 @@ public class LiveFeedActivity extends AppCompatActivity
                             image2Votes.setText(newVote2.toString());
                         }
                     } else { // User takes back their vote.
-                        voted1.setVisibility(View.INVISIBLE);
+                        //voted1.setVisibility(View.INVISIBLE);
 
                         image1.setColorFilter(null);
 
@@ -383,15 +387,17 @@ public class LiveFeedActivity extends AppCompatActivity
                 @Override
                 public void onClick(View v) {
                     if(voted2.getVisibility() != View.VISIBLE) { // User votes once.
-                        voted2.setVisibility(View.VISIBLE);
+                        //voted2.setVisibility(View.VISIBLE);
 
                         Integer newVote = Integer.parseInt(image2Votes.getText().toString()) + 1;
+                        Integer otherVote = Integer.parseInt(image1Votes.getText().toString());
+
                         image2Votes.setText(newVote.toString());
 
                         image2.setColorFilter(Color.argb(150,200,200,200));
 
-                        if(voted1.getVisibility() == View.VISIBLE) { // Switch from vote2 to vote1
-                            voted1.setVisibility(View.INVISIBLE);
+                        if(otherVote != postsInViewFlipper.get(postsInViewFlipper.size()-1).getVotes1()) { // Switch from vote2 to vote1
+                            //voted1.setVisibility(View.INVISIBLE);
 
                             image1.setColorFilter(null);
 
@@ -399,7 +405,7 @@ public class LiveFeedActivity extends AppCompatActivity
                             image1Votes.setText(newVote1.toString());
                         }
                     } else { // User takes back their vote.
-                        voted2.setVisibility(View.INVISIBLE);
+                        //voted2.setVisibility(View.INVISIBLE);
 
                         image2.setColorFilter(null);
 
@@ -529,24 +535,35 @@ public class LiveFeedActivity extends AppCompatActivity
                             if(votedFirst.getVisibility() == View.VISIBLE) { //Means that the user voted for the first Image
                                 System.out.println("USER VOTED FOR FIRST IMAGE. SO WE WILL UPDATE THAT VOTE");
                                 firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes1").setValue(vote1);
+                                votedFirst.setVisibility(View.INVISIBLE);
                             } else if (votedSecond.getVisibility() == View.VISIBLE) {
                                 System.out.println("USER VOTED FOR SECOND IMAGE. SO WE WILL UPDATE THAT VOTE");
                                 firesBaseDatabase.child("posts").child(keyValueFromFirebase).child("votes2").setValue(vote2);
+                                votedSecond.setVisibility(View.INVISIBLE);
                             } else {
                                 //THE USER DIDN'T VOTE FOR ANYTHING SO WE WON"T DO ANYTHING
                             }
 
-                            if(liveFeedFlipper.getDisplayedChild() != liveFeedFlipper.getChildCount()) {
-                                TextView ending = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.no_more_posts);
-                                ending.setVisibility(View.VISIBLE);
+                            //We need to check if where at the last post or not.
+                            int currentPostIndex = liveFeedFlipper.indexOfChild(liveFeedFlipper.getCurrentView());
+                            int numberOfPosts = liveFeedFlipper.getChildCount()- 1;
+
+                            if(currentPostIndex != numberOfPosts) {
+                                liveFeedFlipper.showNext();
                             } else {
                                 //TODO: HERE WE MUST CHECK IF THE USER HAS GONE THROUGH ALL THE POSTS HE CAN POSSIBLY GO THROUGH (YOU DON"T WANT TO GO BACK TO THE BEGINNING)
                                 //WE WILL HAVE TO DISPLAY "SORRY, NO MORE POSTS FOR NOW, TRY CHANGING YOUR CATEGORY PREFERENCES, OR TRY AGAIN LATER, WHEN MORE FRIENDS POST!
+                                LinearLayout layoutOfPost =  (LinearLayout) liveFeedFlipper.getCurrentView().findViewById(R.id.fullLayoutOfPost);
+                                layoutOfPost.setVisibility(View.INVISIBLE);
 
-                                liveFeedFlipper.showNext();
+                                Toast.makeText(this, getString(R.string.no_more_posts),
+                                        Toast.LENGTH_SHORT).show();
+
+
+//                                TextView ending = (TextView) liveFeedFlipper.getCurrentView().findViewById(R.id.no_more_posts);
+//                                ending.setVisibility(View.VISIBLE);
+//                                return true;
                             }
-
-
                         } catch (Exception e) {
                             System.out.println("Something went wrong!");
                         }
