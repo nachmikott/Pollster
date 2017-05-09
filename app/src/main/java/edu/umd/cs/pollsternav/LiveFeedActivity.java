@@ -355,7 +355,10 @@ public class LiveFeedActivity extends AppCompatActivity
             image1.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(voted1.getVisibility() != View.VISIBLE) { // User votes once.
+                    int currentVote = Integer.parseInt(image1Votes.getText().toString());
+                    int originalVote = postsInViewFlipper.get(liveFeedFlipper.getDisplayedChild()).getVotes1();
+
+                    if(currentVote == originalVote) {// User votes once.
                         //voted1.setVisibility(View.VISIBLE);
 
                         Integer newVote = Integer.parseInt(image1Votes.getText().toString()) + 1;
@@ -365,7 +368,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
                         image1.setColorFilter(Color.argb(150,200,200,200));
 
-                        if(otherVote != postsInViewFlipper.get(postsInViewFlipper.size()-1).getVotes2()) { // Switch from vote2 to vote1
+                        if(otherVote != postsInViewFlipper.get(liveFeedFlipper.getDisplayedChild()).getVotes2()) { // Switch from vote2 to vote1
                             //voted2.setVisibility(View.INVISIBLE);
 
                             image2.setColorFilter(null);
@@ -386,7 +389,11 @@ public class LiveFeedActivity extends AppCompatActivity
             image2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(voted2.getVisibility() != View.VISIBLE) { // User votes once.
+                    int currentVote = Integer.parseInt(image2Votes.getText().toString());
+                    int originalVote = postsInViewFlipper.get(liveFeedFlipper.getDisplayedChild()).getVotes2();
+
+
+                    if(currentVote == originalVote) { // User votes once.
                         //voted2.setVisibility(View.VISIBLE);
 
                         Integer newVote = Integer.parseInt(image2Votes.getText().toString()) + 1;
@@ -396,7 +403,7 @@ public class LiveFeedActivity extends AppCompatActivity
 
                         image2.setColorFilter(Color.argb(150,200,200,200));
 
-                        if(otherVote != postsInViewFlipper.get(postsInViewFlipper.size()-1).getVotes1()) { // Switch from vote2 to vote1
+                        if(otherVote != postsInViewFlipper.get(liveFeedFlipper.getDisplayedChild()).getVotes1()) { // Switch from vote2 to vote1
                             //voted1.setVisibility(View.INVISIBLE);
 
                             image1.setColorFilter(null);
